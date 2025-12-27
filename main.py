@@ -1,72 +1,75 @@
-import time
-import requests
-import re
-import os
-import threading
+import time, requests, os, threading
 from flask import Flask, render_template_string
 from supabase import create_client
 
 app = Flask(__name__)
 
-# --- CONFIGURAÇÕES ---
+# --- CONFIGURAÇÃO SUPABASE ---
 URL_SB = "https://tpotbyekboefgcbgmckp.supabase.co"
-KEY_SB = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRwb3RieWVrYm9lZmdjYmdtY2twIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjY4MDc1NjgsImV4cCI6MjA4MjM4MzU2OH0.rlZzMH0EWY54gk9MNolp_KTC2DYFxkb3P7KtPw_aYWw"
+KEY_SB = "SUA_CHAVE_SUPABASE_AQUI"
 supabase = create_client(URL_SB, KEY_SB)
 
-# Link da API (Use o mais recente que você pegou)
-URL_API = "https://games.pragmaticplaylive.net/api/ui/statisticHistory?tableId=mrbras531mrbr532&numberOfGames=500&JSESSIONID=fiJhDiTJWvpKU3-BGSjgJuBLrtPyftVUGcIXse9CH0ht1QvSrUrp!1013244236-a9489409"
+SISTEMA = {"ultimo": "--", "status": "Iniciando...", "last_id": None}
 
-# Estado do Sistema
-SISTEMA = {
-    "ultimo_numero": "Aguardando...",
-    "status": "Iniciando",
-    "erros": 0
-}
-
-def monitorar_roleta():
-    ultimo_id = None
+def monitor_profissional():
     while True:
         try:
+            # 1. Busca o link ATUALIZADO que o GitHub salvou no banco
+            config = supabase.table("configuracoes").select("valor_link").eq("id", 1).execute()
+            if not config.data:
+                SISTEMA["status"] = "🔴 Tabela 'configuracoes' vazia!"
+                time.sleep(10)
+                continue
+                
+            url_dinamica = config.data[0]['valor_link']
+
+            # 2. Faz a requisição para a Pragmatic
             headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"}
-            res = requests.get(URL_API, headers=headers, timeout=8)
-            
+            res = requests.get(url_dinamica, headers=headers, timeout=10)
+
             if res.status_code == 200:
-                SISTEMA["status"] = "🟢 Rodando 24h"
-                historico = res.json().get('history', [])
+                dados = res.json()
+                # Acessa a lista de números da roleta
+                historico = dados.get('data', {}).get('lastNumbers', [])
+                
                 if historico:
-                    recente = historico[0]
-                    game_id = recente.get('gameId')
+                    ultimo_jogo = historico[0]
+                    numero = ultimo_jogo['value']
+                    game_id = ultimo_jogo['gameId']
                     
-                    if game_id != ultimo_id:
-                        num = re.search(r'(\d+)', str(recente.get('gameResult'))).group(1)
-                        # Salva no banco
-                        supabase.table("resultados_roleta").insert({"numero": str(num), "contato": str(game_id)}).execute()
-                        SISTEMA["ultimo_numero"] = num
-                        ultimo_id = game_id
-            
-            elif res.status_code == 401:
-                SISTEMA["status"] = "🔴 Sessão Expirada (Precisa de novo link)"
-            
-        except Exception:
-            SISTEMA["status"] = "🟡 Falha na conexão... tentando de novo"
+                    if game_id != SISTEMA["last_id"]:
+                        # Salva o novo número no seu banco de dados
+                        supabase.table("resultados_roleta").insert({
+                            "numero": str(numero), 
+                            "contato": str(game_id)
+                        }).execute()
+                        
+                        SISTEMA["ultimo"] = numero
+                        SISTEMA["last_id"] = game_id
+                        SISTEMA["status"] = "🟢 ONLINE - CAPTURANDO"
+            else:
+                SISTEMA["status"] = f"🟡 Token Expirado (Status {res.status_code})"
+
+        except Exception as e:
+            SISTEMA["status"] = f"🔴 Erro: {str(e)}"
         
-        time.sleep(3)
+        time.sleep(5) # Verifica a cada 5 segundos se saiu número novo
 
-# Página para o seu usuário ver (Simples e Limpa)
 @app.route('/')
-def home():
-    html = '''
-    <body style="background:#0f172a; color:white; font-family:sans-serif; text-align:center; padding-top:100px;">
-        <h1>📊 Monitor de Resultados</h1>
-        <div style="font-size:3em; margin:20px; color:#10b981;">{{ num }}</div>
-        <p>Status do Robô: <b>{{ status }}</b></p>
-        <p style="font-size:0.8em; color:#64748b;">Conectado via UptimeRobot 24/7</p>
-    </body>
-    '''
-    return render_template_string(html, num=SISTEMA["ultimo_numero"], status=SISTEMA["status"])
+def dashboard():
+    return render_template_string('''
+        <body style="background:#020617; color:white; font-family:sans-serif; text-align:center; padding-top:80px;">
+            <h1 style="color:#6366f1;">BOT ROLETA BLAZE 24H</h1>
+            <div style="font-size:5em; font-weight:bold; background:#1e293b; display:inline-block; padding:20px 50px; border-radius:20px; border:4px solid #6366f1; margin:20px;">
+                {{ num }}
+            </div>
+            <p>Status: <span>{{ status }}</span></p>
+            <p style="color:#475569;">GitHub Actions: Ativo | Google Cloud: Online</p>
+        </body>
+    ''', num=SISTEMA["ultimo"], status=SISTEMA["status"])
 
-# Inicia o monitor em segundo plano
-threading.Thread(target=monitorar_roleta, daemon=True).start()
+# Inicia o monitoramento em uma thread separada
+threading.Thread(target=monitor_profissional, daemon=True).start()
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 10000))
