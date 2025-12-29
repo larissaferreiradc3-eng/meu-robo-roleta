@@ -1,21 +1,19 @@
 :root {
-    --bg-dark: #0a0c0f;
-    --card-bg: #14171c;
-    --accent-green: #00ff88;
-    --accent-red: #ff3e3e;
+    --bg: #05070a;
+    --card: #11141b;
+    --green: #00ff95;
+    --red: #ff3e5e;
+    --neon-shadow: 0 0 15px rgba(0, 255, 149, 0.2);
 }
 
-body { background: var(--bg-dark); color: white; font-family: 'Segoe UI', sans-serif; }
-.card { background: var(--card-bg); border-radius: 12px; padding: 20px; border: 1px solid #252a33; }
+body { background: var(--bg); color: #fff; font-family: 'Inter', sans-serif; margin: 0; }
+.card { background: var(--card); border-radius: 15px; border: 1px solid #1f2530; padding: 20px; box-shadow: var(--neon-shadow); }
 
-.number-grid { display: grid; grid-template-columns: repeat(10, 1fr); gap: 5px; height: 200px; overflow-y: auto; }
-.ball { width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.8em; font-weight: bold; }
+.ball-grid { display: grid; grid-template-columns: repeat(10, 1fr); gap: 8px; margin-top: 15px; }
+.ball { width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-family: 'Orbitron'; }
 
-.Vermelho { background: var(--accent-red); }
-.Preto { background: #1a1a1a; border: 1px solid #444; }
-.Verde { background: var(--accent-green); color: black; }
+.Verde { background: var(--green); color: #000; box-shadow: 0 0 10px var(--green); }
+.Vermelho { background: var(--red); box-shadow: 0 0 10px var(--red); }
+.Preto { background: #1a1a1a; border: 1px solid #333; }
 
-.log-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-.log-table th { text-align: left; color: #888; padding: 10px; border-bottom: 1px solid #252a33; }
-.row-green { color: var(--accent-green); border-bottom: 1px solid #1a2e24; }
-.row-loss { color: var(--accent-red); border-bottom: 1px solid #2e1a1a; }
+.percent { font-size: 3rem; font-family: 'Orbitron'; color: var(--green); text-shadow: 0 0 20px var(--green); }
