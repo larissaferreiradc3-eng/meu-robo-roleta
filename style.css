@@ -1,0 +1,21 @@
+:root {
+    --bg-dark: #0a0c0f;
+    --card-bg: #14171c;
+    --accent-green: #00ff88;
+    --accent-red: #ff3e3e;
+}
+
+body { background: var(--bg-dark); color: white; font-family: 'Segoe UI', sans-serif; }
+.card { background: var(--card-bg); border-radius: 12px; padding: 20px; border: 1px solid #252a33; }
+
+.number-grid { display: grid; grid-template-columns: repeat(10, 1fr); gap: 5px; height: 200px; overflow-y: auto; }
+.ball { width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.8em; font-weight: bold; }
+
+.Vermelho { background: var(--accent-red); }
+.Preto { background: #1a1a1a; border: 1px solid #444; }
+.Verde { background: var(--accent-green); color: black; }
+
+.log-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+.log-table th { text-align: left; color: #888; padding: 10px; border-bottom: 1px solid #252a33; }
+.row-green { color: var(--accent-green); border-bottom: 1px solid #1a2e24; }
+.row-loss { color: var(--accent-red); border-bottom: 1px solid #2e1a1a; }
