@@ -3,49 +3,40 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NEXUS IA - SURPASS YOURSELF</title>
+    <title>NEXUS IA — Surpass Yourself</title>
     <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Inter:wght@300;400;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div class="dashboard-container">
-        <header class="main-header">
-            <h1 class="logo-text">NEXUS <span>IA</span></h1>
-            <div class="user-badge">VIP - LARISSA</div>
+    <div class="app-container">
+        <header class="main-nav">
+            <div class="logo">NEXUS <span>IA</span></div>
+            <div class="user-status">VIP - ONLINE</div>
         </header>
 
-        <div class="top-row">
-            <div class="card history-card">
-                <h3>HISTÓRICO (ÚLTIMOS 100)</h3>
-                <div id="live-history" class="number-grid">
-                    </div>
-            </div>
-
+        <div class="dashboard-grid">
             <div class="card stats-card">
                 <h3>ASSERTIVIDADE</h3>
-                <div class="stats-content">
-                    <div class="stat-circle" id="win-rate">0.0%</div>
-                    <div class="stat-details">
-                        <span class="win">Greens: <b id="total-greens">0</b></span>
-                        <span class="loss">Losses: <b id="total-losses">0</b></span>
+                <div class="stats-main">
+                    <div id="win-rate" class="percent">0.0%</div>
+                    <div class="stats-counters">
+                        <div class="counter win">Greens: <span id="count-greens">0</span></div>
+                        <div class="counter loss">Losses: <span id="count-losses">0</span></div>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <div class="card logs-card">
-            <h3>LOGS DE OPERAÇÃO (DNA)</h3>
-            <table class="log-table">
-                <thead>
-                    <tr>
-                        <th>Número</th>
-                        <th>Estratégia</th>
-                        <th>Resultado</th>
-                        <th>Momento</th>
-                    </tr>
-                </thead>
-                <tbody id="log-body">
-                    </tbody>
-            </table>
+            <div class="card health-card">
+                <h3>SAÚDE DAS ESTRATÉGIAS</h3>
+                <div id="strategy-health" class="health-list">
+                    </div>
+            </div>
+
+            <div class="card history-card full-width">
+                <h3>HISTÓRICO DE CICLOS (DNA)</h3>
+                <div id="live-history" class="ball-grid">
+                    </div>
+            </div>
         </div>
     </div>
 
