@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEXUS IA - SURPASS YOURSELF</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <header class="main-header">
+            <h1 class="logo-text">NEXUS <span>IA</span></h1>
+            <div class="user-badge">VIP - LARISSA</div>
+        </header>
+
+        <div class="top-row">
+            <div class="card history-card">
+                <h3>HISTÓRICO (ÚLTIMOS 100)</h3>
+                <div id="live-history" class="number-grid">
+                    </div>
+            </div>
+
+            <div class="card stats-card">
+                <h3>ASSERTIVIDADE</h3>
+                <div class="stats-content">
+                    <div class="stat-circle" id="win-rate">0.0%</div>
+                    <div class="stat-details">
+                        <span class="win">Greens: <b id="total-greens">0</b></span>
+                        <span class="loss">Losses: <b id="total-losses">0</b></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card logs-card">
+            <h3>LOGS DE OPERAÇÃO (DNA)</h3>
+            <table class="log-table">
+                <thead>
+                    <tr>
+                        <th>Número</th>
+                        <th>Estratégia</th>
+                        <th>Resultado</th>
+                        <th>Momento</th>
+                    </tr>
+                </thead>
+                <tbody id="log-body">
+                    </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+    <script src="main.js"></script>
+</body>
+</html>
