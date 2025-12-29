@@ -1,47 +1,35 @@
-const _supabase = supabase.createClient('SUA_URL', 'SUA_KEY');
+const _supabase = supabase.createClient('https://tpotbyekboefgcbgmckp.supabase.co', 'SUA_KEY_FORNECIDA');
 
-async function monitorarSistema() {
-    setInterval(async () => {
-        const { data, error } = await _supabase
-            .from('resultados_nexus')
-            .select('*')
-            .order('created_at', { ascending: false });
+async function syncDashboard() {
+    const { data, error } = await _supabase
+        .from('resultados_nexus')
+        .select('*')
+        .order('created_at', { ascending: false });
 
-        if (data) {
-            renderizarHistorico(data.slice(0, 100)); // Pega os últimos 100 [cite: 2025-12-29]
-            renderizarLogs(data.slice(0, 20));
-            calcularAssertividade(data);
-        }
-    }, 2000);
+    if (data) {
+        // Histórico Automático de 100 Números
+        const historyContainer = document.getElementById('live-history');
+        historyContainer.innerHTML = data.slice(0, 100).map(item => `
+            <div class="ball ${item.cor}">${item.numero}</div>
+        `).join('');
+
+        // Cálculo de Assertividade (Greens vs Total)
+        const total = data.length;
+        const greens = data.filter(s => s.resultado.includes('Green')).length;
+        const rate = total > 0 ? ((greens / total) * 100).toFixed(1) : "0.0";
+
+        document.getElementById('win-rate').innerText = `${rate}%`;
+        document.getElementById('count-greens').innerText = greens;
+        document.getElementById('count-losses').innerText = total - greens;
+
+        // Saúde das Estratégias (Destaque para CDC e Estelar)
+        const stratHealth = document.getElementById('strategy-health');
+        stratHealth.innerHTML = `
+            <div class="strat-item">CDC Gabriel: <span>Estável</span></div>
+            <div class="strat-item">Estelar: <span>Em Operação</span></div>
+        `;
+    }
 }
 
-function renderizarHistorico(lista) {
-    const container = document.getElementById('live-history');
-    container.innerHTML = lista.map(n => `
-        <div class="ball ${n.cor}">${n.numero}</div>
-    `).join('');
-}
-
-function renderizarLogs(lista) {
-    const tbody = document.getElementById('log-body');
-    tbody.innerHTML = lista.map(s => `
-        <tr class="${s.resultado.includes('Green') ? 'row-green' : 'row-loss'}">
-            <td>${s.numero}</td>
-            <td>${s.estrategia}</td>
-            <td>${s.resultado}</td>
-            <td>${new Date(s.created_at).toLocaleTimeString()}</td>
-        </tr>
-    `).join('');
-}
-
-function calcularAssertividade(lista) {
-    const greens = lista.filter(s => s.resultado.includes('Green')).length;
-    const total = lista.length;
-    const rate = total > 0 ? ((greens / total) * 100).toFixed(1) : 0;
-    
-    document.getElementById('win-rate').innerText = `${rate}%`;
-    document.getElementById('total-greens').innerText = greens;
-    document.getElementById('total-losses').innerText = total - greens;
-}
-
-monitorarSistema();
+// Atualização rápida a cada 2 segundos
+setInterval(syncDashboard, 2000);
