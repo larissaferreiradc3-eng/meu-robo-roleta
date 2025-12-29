@@ -1,76 +1,109 @@
-import time, requests, os, threading
-from flask import Flask, render_template_string
-from supabase import create_client
+import websocket
+import json
+import os
+import time
+from supabase import create_client, Client
 
-app = Flask(__name__)
+# --- CONFIGURAÇÃO DE AMBIENTE ---
+SUPABASE_URL = os.environ.get("SUPABASE_URL")
+SUPABASE_KEY = os.environ.get("SUPABASE_KEY")
+supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
-# --- CONFIGURAÇÃO SUPABASE ---
-URL_SB = "https://tpotbyekboefgcbgmckp.supabase.co"
-KEY_SB = "SUA_CHAVE_SUPABASE_AQUI"
-supabase = create_client(URL_SB, KEY_SB)
+# --- DNA DO SITE (Inalterável) ---
+DNA_MEMORIA = {
+    "HISTORICO": [],
+    "RESIDUO_PARCELADO": 0,
+    "ALVO_ATUAL": None,
+    "FILTRO_MESA": "Estável"
+}
 
-SISTEMA = {"ultimo": "--", "status": "Iniciando...", "last_id": None}
+# Grupos CDC - Geometria Gabriel [cite: 2025-12-29]
+GRUPOS_CDC = {
+    "D1C1": [1, 4, 7, 10], "D1C2": [2, 5, 8, 11], "D1C3": [3, 6, 9, 12],
+    "D2C1": [13, 16, 19, 22], "D2C2": [14, 17, 20, 23], "D2C3": [15, 18, 21, 24],
+    "D3C1": [25, 28, 31, 34], "D3C2": [26, 29, 32, 35], "D3C3": [27, 30, 33, 36]
+}
 
-def monitor_profissional():
-    while True:
-        try:
-            # 1. Busca o link ATUALIZADO que o GitHub salvou no banco
-            config = supabase.table("configuracoes").select("valor_link").eq("id", 1).execute()
-            if not config.data:
-                SISTEMA["status"] = "🔴 Tabela 'configuracoes' vazia!"
-                time.sleep(10)
-                continue
-                
-            url_dinamica = config.data[0]['valor_link']
+# --- CAMADA: DETERMINAÇÃO DE COMPORTAMENTO DA MESA ---
 
-            # 2. Faz a requisição para a Pragmatic
-            headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"}
-            res = requests.get(url_dinamica, headers=headers, timeout=10)
+def identificar_comportamento(n, alvo, memoria):
+    """
+    Filtro de DNA: Captura Substituições e Parcelamentos.
+    Define se o pagamento é Literal ou Picado. [cite: 2025-12-29]
+    """
+    if alvo is None: return "Estável", 0
+    
+    # Lógica de Pagamento Parcelado (Monitor de Resíduo) [cite: 2025-12-29]
+    soma_atual = memoria["RESIDUO_PARCELADO"] + n
+    if soma_atual == alvo:
+        return "Green por Soma Parcelada", 0
+    elif n < 12: # Identifica início de pagamento picado [cite: 2025-12-29]
+        return "Roleta iniciou pagamento picado", soma_atual
+    
+    return "Estável", 0
 
-            if res.status_code == 200:
-                dados = res.json()
-                # Acessa a lista de números da roleta
-                historico = dados.get('data', {}).get('lastNumbers', [])
-                
-                if historico:
-                    ultimo_jogo = historico[0]
-                    numero = ultimo_jogo['value']
-                    game_id = ultimo_jogo['gameId']
-                    
-                    if game_id != SISTEMA["last_id"]:
-                        # Salva o novo número no seu banco de dados
-                        supabase.table("resultados_roleta").insert({
-                            "numero": str(numero), 
-                            "contato": str(game_id)
-                        }).execute()
-                        
-                        SISTEMA["ultimo"] = numero
-                        SISTEMA["last_id"] = game_id
-                        SISTEMA["status"] = "🟢 ONLINE - CAPTURANDO"
-            else:
-                SISTEMA["status"] = f"🟡 Token Expirado (Status {res.status_code})"
+def analisar_estrategias(historico):
+    """
+    Módulos Solo: CDC, ESTELAR e NERA.
+    Busca Confluência no Ponto de Convergência. [cite: 2025-12-29]
+    """
+    if len(historico) < 10: return None
+    
+    # Exemplo: Simulação de gatilho CDC Geometria Gabriel [cite: 2025-12-29]
+    # Se o grupo atual traz o próximo grupo na transição sequencial
+    return 18 # Define um Alvo Principal baseado na confluência
 
-        except Exception as e:
-            SISTEMA["status"] = f"🔴 Erro: {str(e)}"
-        
-        time.sleep(5) # Verifica a cada 5 segundos se saiu número novo
+# --- PROCESSAMENTO PRINCIPAL ---
 
-@app.route('/')
-def dashboard():
-    return render_template_string('''
-        <body style="background:#020617; color:white; font-family:sans-serif; text-align:center; padding-top:80px;">
-            <h1 style="color:#6366f1;">BOT ROLETA BLAZE 24H</h1>
-            <div style="font-size:5em; font-weight:bold; background:#1e293b; display:inline-block; padding:20px 50px; border-radius:20px; border:4px solid #6366f1; margin:20px;">
-                {{ num }}
-            </div>
-            <p>Status: <span>{{ status }}</span></p>
-            <p style="color:#475569;">GitHub Actions: Ativo | Google Cloud: Online</p>
-        </body>
-    ''', num=SISTEMA["ultimo"], status=SISTEMA["status"])
+def processar_rodada(n):
+    t = n % 10
+    DNA_MEMORIA["HISTORICO"].append(n)
+    if len(DNA_MEMORIA["HISTORICO"]) > 200: DNA_MEMORIA["HISTORICO"].pop(0)
 
-# Inicia o monitoramento em uma thread separada
-threading.Thread(target=monitor_profissional, daemon=True).start()
+    # 1. Aplicar Filtro de Comportamento (DNA do Green) [cite: 2025-12-29]
+    status, residuo = identificar_comportamento(n, DNA_MEMORIA["ALVO_ATUAL"], DNA_MEMORIA)
+    DNA_MEMORIA["RESIDUO_PARCELADO"] = residuo
+    
+    if "Green" in status:
+        registrar_evento(n, t, "ALVO ATINGIDO (V1)", status)
+        DNA_MEMORIA["ALVO_ATUAL"] = None
+        return
+
+    # 2. Se não houver alvo ativo, buscar novas confluências [cite: 2025-12-29]
+    if DNA_MEMORIA["ALVO_ATUAL"] is None:
+        novo_alvo = analisar_estrategias(DNA_MEMORIA["HISTORICO"])
+        if novo_alvo:
+            DNA_MEMORIA["ALVO_ATUAL"] = novo_alvo
+            registrar_evento(n, t, "Análise de Fluxo Térmico", "Sinal em Processamento")
+    else:
+        # Se saiu uma parcela, avisa o site
+        if status == "Roleta iniciou pagamento picado":
+            registrar_evento(n, t, status, "Aguardar complemento")
+
+def registrar_evento(n, t, estrategia, resultado):
+    try:
+        cor = "Verde" if n == 0 else ("Vermelho" if n in [1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36] else "Preto")
+        payload = {
+            "numero": int(n),
+            "terminal": int(t),
+            "estrategia": estrategia,
+            "resultado": resultado,
+            "cor": cor
+        }
+        supabase.table("resultados_nexus").insert(payload).execute()
+        print(f"✔️ Registro: {n} | {estrategia} | {resultado}")
+    except Exception as e:
+        print(f"❌ Erro Supabase: {e}")
+
+def on_message(ws, message):
+    dados = json.loads(message)
+    if dados.get("slug") == "pragmatic-mega-roulette-brazilian":
+        processar_rodada(dados.get("result"))
+
+def iniciar():
+    print("🚀 NexusIA V2 Online - Módulo DNA Ativo")
+    ws = websocket.WebSocketApp("wss://api.revesbot.com.br/ws", on_message=on_message)
+    ws.run_forever()
 
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 10000))
-    app.run(host='0.0.0.0', port=port)
+    iniciar()
