@@ -2,226 +2,175 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NEXUS IA - Surpass Yourself</title>
+    <title>NEXUS IA - Sistema de Inteligência Preditiva</title>
     <style>
-        /* DESIGN SYSTEM NEXUS */
         :root {
             --bg-dark: #050505;
-            --card-bg: rgba(15, 15, 15, 0.95);
+            --card-bg: #0f0f0f;
             --nexus-blue: #00d4ff;
             --nexus-orange: #ff4e00;
             --nexus-green: #00ff41;
-            --nexus-red: #ff2a2a;
-            --text-main: #ffffff;
-            --font-tech: 'Roboto Mono', monospace;
+            --nexus-red: #e61e1e;
         }
 
         body {
             background-color: var(--bg-dark);
-            color: var(--text-main);
-            font-family: 'Inter', sans-serif;
-            margin: 0;
+            color: white;
+            font-family: 'Roboto Mono', monospace;
             display: flex;
             justify-content: center;
-            padding: 20px;
-            overflow-x: hidden;
-        }
-
-        .container {
-            width: 100%;
-            max-width: 1000px;
-            background: var(--card-bg);
-            border: 1px solid rgba(0, 212, 255, 0.2);
-            border-radius: 20px;
-            padding: 30px;
-            box-shadow: 0 0 40px rgba(0,0,0,0.8);
-        }
-
-        /* HEADER & LOGO */
-        .header {
-            text-align: center;
-            margin-bottom: 40px;
-        }
-
-        .header h1 {
-            font-size: 3.5rem;
             margin: 0;
-            letter-spacing: 8px;
-            background: linear-gradient(135deg, var(--nexus-blue), var(--nexus-orange));
+            padding: 20px;
+        }
+
+        .dashboard {
+            width: 100%;
+            max-width: 900px;
+            background: var(--card-bg);
+            border: 1px solid #222;
+            border-radius: 12px;
+            padding: 20px;
+        }
+
+        .header-nexus {
+            text-align: center;
+            border-bottom: 2px solid #1a1a1a;
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+
+        .logo-nexus {
+            font-size: 2.2rem;
+            letter-spacing: 6px;
+            background: linear-gradient(to right, var(--nexus-blue), var(--nexus-orange));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            font-weight: 900;
+            margin: 0;
         }
 
-        .header p {
-            font-size: 0.8rem;
-            letter-spacing: 4px;
-            color: rgba(255,255,255,0.6);
-            margin-top: -5px;
-        }
-
-        /* ÁREA DE COMANDO (O BOTÃO) */
-        .action-zone {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 25px;
-            padding: 40px;
-            background: radial-gradient(circle at center, rgba(0,212,255,0.05) 0%, transparent 70%);
-        }
-
-        .scan-btn {
-            width: 300px;
-            height: 90px;
-            background: transparent;
-            border: 2px solid var(--nexus-blue);
-            border-radius: 50px;
-            color: white;
-            font-size: 1.2rem;
-            font-weight: bold;
-            font-family: var(--font-tech);
-            cursor: pointer;
-            position: relative;
-            transition: 0.4s all ease;
-            box-shadow: 0 0 15px rgba(0, 212, 255, 0.2);
-            text-transform: uppercase;
-        }
-
-        .scan-btn:hover {
-            border-color: var(--nexus-orange);
-            box-shadow: 0 0 30px var(--nexus-orange);
-            transform: scale(1.02);
-        }
-
-        .scan-btn:active { transform: scale(0.98); }
-
-        /* CARD DE SINAL */
-        .result-card {
-            display: none;
-            width: 100%;
-            max-width: 450px;
-            background: rgba(255, 255, 255, 0.03);
-            border-left: 4px solid var(--nexus-green);
-            padding: 20px;
-            border-radius: 0 12px 12px 0;
-            animation: fadeIn 0.5s ease;
-        }
-
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-        /* GRADE DE HISTÓRICO (100 RODADAS) */
-        .history-section { margin-top: 50px; }
-        .history-section h2 { font-size: 1rem; color: var(--nexus-blue); border-bottom: 1px solid #222; padding-bottom: 10px; margin-bottom: 20px; letter-spacing: 2px; }
-
+        /* Grade de Histórico - Números Menores e Organizados */
         .history-grid {
             display: grid;
-            grid-template-columns: repeat(10, 1fr);
-            gap: 6px;
+            grid-template-columns: repeat(10, 1fr); /* 10 por linha */
+            gap: 4px;
+            margin-top: 15px;
         }
 
-        .num-box {
-            aspect-ratio: 1;
+        .num-cell {
+            height: 35px; /* Tamanho reduzido conforme pedido */
             display: flex;
             align-items: center;
             justify-content: center;
-            font-weight: bold;
-            font-family: var(--font-tech);
-            border-radius: 4px;
             font-size: 0.85rem;
+            font-weight: bold;
+            border-radius: 3px;
             border: 1px solid rgba(255,255,255,0.05);
         }
 
-        .red { background: var(--nexus-red); }
-        .black { background: #111; }
-        .green { background: var(--nexus-green); color: #000; }
-        .highlight { border: 2px solid #ffd700; box-shadow: 0 0 12px #ffd700; }
+        .red { background-color: var(--nexus-red); }
+        .black { background-color: #1a1a1a; color: #ccc; }
+        .green { background-color: var(--nexus-green); color: black; }
+
+        /* Estilo do Alerta de Gatilho */
+        .alert-box {
+            background: rgba(0, 212, 255, 0.05);
+            border-left: 4px solid var(--nexus-blue);
+            padding: 15px;
+            margin: 20px 0;
+            display: none; /* Só aparece no gatilho */
+        }
+
+        .scan-button {
+            width: 100%;
+            padding: 15px;
+            background: transparent;
+            border: 1px solid var(--nexus-blue);
+            color: var(--nexus-blue);
+            cursor: pointer;
+            font-weight: bold;
+            letter-spacing: 2px;
+            transition: 0.3s;
+        }
+
+        .scan-button:hover {
+            background: var(--nexus-blue);
+            color: black;
+        }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <div class="header">
-            <h1>NEXUS</h1>
-            <p>SURPASS YOURSELF</p>
-        </div>
-
-        <div class="action-zone">
-            <div id="status" style="color: rgba(255,255,255,0.4); font-size: 0.8rem;">AGUARDANDO SOLICITAÇÃO...</div>
-            
-            <button class="scan-btn" onclick="iniciarAnalise()" id="mainBtn">
-                Gerar Análise IA
-            </button>
-
-            <div class="result-card" id="resultBox">
-                <div style="color: var(--nexus-green); font-weight: bold; font-size: 0.7rem; letter-spacing: 2px;">ALVO DETECTADO</div>
-                <div id="prediction" style="font-size: 1.4rem; margin: 10px 0; font-family: var(--font-tech);">---</div>
-                <div style="display: flex; justify-content: space-between; font-size: 0.7rem; color: rgba(255,255,255,0.5);">
-                    <span>CONFIANÇA: 98.4%</span>
-                    <span>VÁLIDO POR: 15s</span>
-                </div>
-            </div>
-        </div>
-
-        <div class="history-section">
-            <h2>HISTÓRICO (ÚLTIMAS 100 RODADAS)</h2>
-            <div class="history-grid" id="grid"></div>
-        </div>
+<div class="dashboard">
+    <div class="header-nexus">
+        <h1 class="logo-nexus">NEXUS</h1>
+        <small style="color: #666;">SURPASS YOURSELF | MÓDULO DNA INTEGRADO</small>
     </div>
 
-    <script>
-        /* LÓGICA DO SISTEMA NEXUS */
-        const gridElement = document.getElementById('grid');
-        const redNums = [1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36];
+    <button class="scan-button" onclick="executarAnalise()">SOLICITAR ANÁLISE IA</button>
 
-        // 1. Gera Histórico de 100 Números
-        function renderHistory() {
-            gridElement.innerHTML = "";
-            for (let i = 0; i < 100; i++) {
-                const num = Math.floor(Math.random() * 37);
-                const div = document.createElement('div');
-                div.className = 'num-box';
-                div.innerText = num;
+    <div id="nexus-alert" class="alert-box">
+        <strong id="strategy-name" style="color: var(--nexus-blue);"></strong><br>
+        <span id="target-details"></span>
+    </div>
 
-                if (num === 0) div.classList.add('green');
-                else if (redNums.includes(num)) div.classList.add('red');
-                else div.classList.add('black');
+    <div style="margin-top: 30px;">
+        <span style="font-size: 0.7rem; color: #555;">HISTÓRICO CRONOLÓGICO (ESQ -> DIR)</span>
+        <div class="history-grid" id="historyContainer"></div>
+    </div>
+</div>
 
-                // Simula "Número Confluente" com borda dourada
-                if (Math.random() > 0.95) div.classList.add('highlight');
+<script>
+    // Definição exata das cores da roleta
+    const reds = [1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36];
+    
+    // Simulação de histórico real (substitua pela sua API/Supabase)
+    let historicoReal = [];
+    for(let i=0; i<100; i++) {
+        historicoReal.push(Math.floor(Math.random() * 37));
+    }
 
-                gridElement.appendChild(div);
-            }
-        }
+    function renderizarGrade() {
+        const container = document.getElementById('historyContainer');
+        container.innerHTML = '';
+        
+        historicoReal.forEach((num, index) => {
+            const cell = document.createElement('div');
+            cell.className = 'num-cell';
+            cell.innerText = num;
+            
+            if (num === 0) cell.classList.add('green');
+            else if (reds.includes(num)) cell.classList.add('red');
+            else cell.classList.add('black');
+            
+            // O primeiro número (índice 0) é o mais recente
+            if(index === 0) cell.style.boxShadow = "inset 0 0 10px white";
 
-        // 2. Lógica do Botão de Análise Sob Demanda
-        function iniciarAnalise() {
-            const btn = document.getElementById('mainBtn');
-            const status = document.getElementById('status');
-            const resultBox = document.getElementById('resultBox');
-            const prediction = document.getElementById('prediction');
+            container.appendChild(cell);
+        });
+    }
 
-            btn.disabled = true;
-            status.innerText = "SINCRONIZANDO VETORES NERA/ESTELAR...";
-            btn.style.opacity = "0.5";
-            resultBox.style.display = "none";
+    function executarAnalise() {
+        // Implementação do DNA: Soma Larissa
+        // Gatilho: V_D3 -> P_D2 -> P_D2
+        const n1 = historicoReal[0]; // mais recente
+        const n2 = historicoReal[1];
+        const n3 = historicoReal[2];
 
-            // Simula o tempo de processamento da IA
-            setTimeout(() => {
-                btn.disabled = false;
-                btn.style.opacity = "1";
-                status.innerText = "ANÁLISE CONCLUÍDA!";
-                
-                resultBox.style.display = "block";
-                prediction.innerHTML = "2ª COLUNA + <span style='color:var(--nexus-green)'>0</span>";
-                
-                // Atualiza o histórico para simular tempo real
-                renderHistory();
-            }, 2500);
-        }
+        const alertBox = document.getElementById('nexus-alert');
+        const strategyName = document.getElementById('strategy-name');
+        const targetDetails = document.getElementById('target-details');
 
-        // Inicializa o grid ao carregar
-        renderHistory();
-    </script>
+        // Exemplo de ativação do DNA de Soma
+        let soma = n1 + n2 + n3;
+        if (soma > 36) soma = Math.floor(soma/10) + (soma%10);
+
+        alertBox.style.display = "block";
+        strategyName.innerText = "GATILHO DE SOMA DETECTADO";
+        targetDetails.innerText = `Alvo: ${soma} | Proteção: 0, 21 e Vizinhos de Race.`;
+    }
+
+    renderizarGrade();
+</script>
+
 </body>
 </html>
