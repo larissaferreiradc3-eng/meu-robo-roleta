@@ -4,32 +4,59 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NEXUS IA - Protocolo Multicamadas</title>
-    
-    <link rel="stylesheet" href="style.css">
-    
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        /* SEU CSS ORIGINAL APLICADO [cite: 2025-12-29] */
+        :root {
+            --bg: #05070a;
+            --card: #11141b;
+            --green: #00ff95;
+            --red: #ff3e5e;
+            --neon-shadow: 0 0 15px rgba(0, 255, 149, 0.2);
+        }
+
+        body { background: var(--bg); color: #fff; font-family: 'Inter', sans-serif; margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+        #container-principal { width: 100%; max-width: 450px; padding: 20px; }
+        
+        .card { background: var(--card); border-radius: 15px; border: 1px solid #1f2530; padding: 25px; box-shadow: var(--neon-shadow); text-align: center; }
+        
+        header h1 { font-size: 2.2rem; font-weight: 900; margin: 0; letter-spacing: -1px; }
+        header span { color: #ffd700; }
+        #status-bot { font-size: 0.7rem; letter-spacing: 2px; opacity: 0.7; margin-bottom: 30px; }
+
+        #motor-num { font-size: 5rem; font-weight: bold; margin: 20px 0; font-family: 'Orbitron', sans-serif; }
+        
+        .percent { font-size: 1.2rem; color: var(--green); text-shadow: 0 0 10px var(--green); font-weight: bold; cursor: pointer; }
+
+        .ball-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; margin-top: 20px; }
+        .ball { width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.9rem; }
+
+        .Verde { background: var(--green); color: #000; box-shadow: 0 0 10px var(--green); }
+        .Vermelho { background: var(--red); box-shadow: 0 0 10px var(--red); }
+        .Preto { background: #1a1a1a; border: 1px solid #333; color: #fff; }
+    </style>
 </head>
 <body>
 
     <div id="container-principal">
-        <header>
-            <h1>NEXUS <span style="color: #ffd700;">IA</span></h1>
-            <p id="status-bot">SISTEMA ATIVO: DNA DE LUXO</p>
-        </header>
+        <div class="card">
+            <header>
+                <h1>NEXUS <span>IA</span></h1>
+                <p id="status-bot">SISTEMA ATIVO: DNA DE LUXO</p>
+            </header>
 
-        <div id="display-motor">
             <div id="motor-num">--</div>
-        </div>
 
-        <div id="container-sinal" onclick="gerarAnaliseIA()" style="cursor: pointer;">
-            <p style="font-size: 0.8rem; color: #888; margin-bottom: 5px;">SINAL DE ENTRADA</p>
-            <div id="texto-sinal">AGUARDANDO DADOS...</div>
-        </div>
+            <div id="container-sinal" onclick="gerarAnaliseIA()">
+                <p style="font-size: 0.7rem; color: #555; margin-bottom: 5px;">SINAL DE ENTRADA (CLIQUE)</p>
+                <div id="texto-sinal" class="percent italic">AGUARDANDO...</div>
+            </div>
 
-        <div id="container-historico">
-            <p style="text-align: center; margin-bottom: 15px; color: #aaa;">ÚLTIMOS 24 RESULTADOS</p>
-            <div id="historico-lista">
-                </div>
+            <div style="margin-top: 40px;">
+                <p style="font-size: 0.7rem; color: #555; font-weight: bold; margin-bottom: 15px;">ÚLTIMOS 24 RESULTADOS</p>
+                <div id="historico-lista" class="ball-grid">
+                    </div>
+            </div>
         </div>
     </div>
 
@@ -40,21 +67,17 @@
 
         let ultimoId = null;
 
-        async function sincronizarNexus() {
+        async function sincronizar() {
             const { data } = await supabaseClient.from('resultados_nexus').select('*').order('id', { ascending: false }).limit(1);
-            
             if (data && data[0] && data[0].id !== ultimoId) {
                 ultimoId = data[0].id;
                 const reg = data[0];
-                
                 const motor = document.getElementById('motor-num');
                 motor.innerText = reg.numero;
-                
-                // Aplica as cores do DNA (0 Verde, resto exato) [cite: 2025-12-28, 2025-12-29]
-                motor.style.color = (reg.cor === "Vermelho") ? "#ff4d4d" : (reg.cor === "Verde") ? "#00ff7f" : "#fff";
-                
+                // Cores DNA (0 Verde) [cite: 2025-12-28, 2025-12-29]
+                motor.style.color = (reg.cor === "Vermelho") ? "var(--red)" : (reg.cor === "Verde") ? "var(--green)" : "#fff";
                 document.getElementById('texto-sinal').innerText = reg.resultado.toUpperCase();
-                carregarHistoricoDNA();
+                carregarH();
             }
         }
 
@@ -62,34 +85,25 @@
             const { data } = await supabaseClient.from('resultados_nexus').select('*').order('id', { ascending: false }).limit(1);
             if (data && data[0]) {
                 const reg = data[0];
-                const sinal = document.getElementById('texto-sinal');
-                
-                // Lógica de Alvo/Parcelamento do DNA [cite: 2025-12-29]
                 if (reg.resultado.includes("picado")) {
                     const alvo = 6; 
                     const falta = alvo - reg.numero;
-                    sinal.innerText = `ALVO: ${falta} OU ${alvo}`;
-                    sinal.style.color = "#ffd700";
-                } else {
-                    sinal.innerText = "BUSCANDO ENTRADA...";
+                    document.getElementById('texto-sinal').innerText = `ALVO: ${falta} OU ${alvo}`;
                 }
             }
         }
 
-        async function carregarHistoricoDNA() {
+        async function carregarH() {
             const { data } = await supabaseClient.from('resultados_nexus').select('numero, cor').order('id', { ascending: false }).limit(24);
-            const lista = document.getElementById('historico-lista');
-            if (lista && data) {
-                lista.innerHTML = data.map(n => `
-                    <div style="background:#1a1a1a; padding:10px; border-radius:8px; border-bottom: 3px solid ${n.cor=='Vermelho'?'#ff4d4d':n.cor=='Verde'?'#00ff7f':'#444'}; font-weight:bold; color: white;">
-                        ${n.numero}
-                    </div>
+            if (data) {
+                document.getElementById('historico-lista').innerHTML = data.map(n => `
+                    <div class="ball ${n.cor}">${n.numero}</div>
                 `).join('');
             }
         }
 
-        setInterval(sincronizarNexus, 5000);
-        sincronizarNexus();
+        setInterval(sincronizar, 5000);
+        sincronizar();
     </script>
 </body>
 </html>
