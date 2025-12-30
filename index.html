@@ -7,46 +7,66 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        body { background-color: #0a0a0a; color: white; font-family: sans-serif; }
-        .card-dna { background: linear-gradient(145deg, #111, #080808); border: 1px solid #222; }
-        #numero-atual { transition: all 0.5s ease; }
+        body { background-color: #0a0a0a; color: white; font-family: 'Inter', sans-serif; }
+        .card-dna { background: linear-gradient(145deg, #151515, #0a0a0a); border: 1px solid #222; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .btn-analise { background: linear-gradient(90deg, #ff4e00, #ec9f05); transition: all 0.3s ease; }
+        .btn-analise:hover { transform: scale(1.05); filter: brightness(1.2); }
+        #sugestao-alvo { animation: pulse 2s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
     </style>
 </head>
-<body class="flex flex-col items-center p-5">
+<body class="flex flex-col items-center p-5 min-h-screen">
 
-    <div class="w-full max-w-md mt-10">
-        <h1 class="text-orange-500 font-bold text-2xl text-center mb-6">NEXUS IA <span class="text-white text-sm block">SISTEMA DNA PROFISSIONAL</span></h1>
+    <div class="w-full max-w-md mt-6">
+        <header class="text-center mb-8">
+            <h1 class="text-orange-500 font-black text-3xl italic tracking-tighter">NEXUS IA</h1>
+            <p class="text-gray-400 text-xs font-bold uppercase tracking-widest">Sistema DNA Profissional — Luxo</p>
+        </header>
 
-        <div class="card-dna rounded-2xl p-8 text-center shadow-2xl">
-            <p class="text-blue-400 text-xs font-bold mb-4 tracking-widest">✅ DNA: MONITORANDO CICLOS</p>
+        <div class="card-dna rounded-3xl p-8 text-center relative overflow-hidden">
+            <div class="absolute top-0 left-0 w-full h-1 bg-orange-500"></div>
+            <p class="text-blue-400 text-[10px] font-bold mb-2 tracking-[0.2em] uppercase">📡 DNA: Monitorando Ciclos</p>
             
-            <div class="flex justify-center items-center gap-4">
-                <div id="numero-atual" class="text-8xl font-black italic">--</div>
-                
-                <div class="text-left border-l border-gray-700 pl-4">
-                    <p class="text-gray-500 text-xs uppercase">Status do Ciclo:</p>
-                    <p id="status-ciclo" class="font-bold text-sm">AGUARDANDO...</p>
+            <div class="flex justify-around items-center mb-6">
+                <div>
+                    <div id="numero-atual" class="text-8xl font-black italic tracking-tighter">--</div>
+                    <p id="cor-texto" class="text-[10px] font-bold uppercase opacity-50">Aguardando...</p>
                 </div>
+                <div class="text-left border-l border-gray-800 pl-6">
+                    <p class="text-gray-500 text-[10px] uppercase font-bold">Status do Ciclo:</p>
+                    <p id="status-ciclo" class="font-bold text-sm leading-tight text-white uppercase">Neutro</p>
+                </div>
+            </div>
+
+            <button onclick="gerarAnaliseIA()" class="btn-analise w-full py-4 rounded-2xl text-white font-black text-lg uppercase shadow-lg mb-4">
+                Gerar Análise IA
+            </button>
+
+            <div id="display-sugestao" class="hidden bg-black/40 rounded-xl p-4 border border-orange-500/30">
+                <p class="text-orange-500 text-[10px] font-bold uppercase mb-1">Entrada Sugerida:</p>
+                <p id="sugestao-alvo" class="text-xl font-black text-white">--</p>
             </div>
         </div>
 
-        <div class="mt-10">
-            <h2 class="text-xs text-gray-500 font-bold mb-4 uppercase tracking-widest">Histórico Real (Últimos 100 Giros)</h2>
-            <div id="lista-historico" class="grid grid-cols-5 gap-2">
+        <div class="mt-8">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-[10px] text-gray-500 font-bold uppercase tracking-widest">Histórico (Últimos 100 Giros)</h2>
+                <span class="text-[10px] text-orange-500 font-bold">Terminal Máx: 6x</span>
+            </div>
+            <div id="lista-historico" class="grid grid-cols-5 gap-2 text-sm">
                 </div>
         </div>
     </div>
 
     <script>
-        // CONFIGURAÇÃO SUPABASE COM SUA CHAVE ANON [cite: 2025-12-29]
         const SB_URL = "https://tpotbyekboefgbgmckp.supabase.co";
         const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRwb3RieWVrYm9lZmdjYmdtY2twIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjY4MDc1NjgsImV4cCI6MjA4MjM4MzU2OH0.rlZzMH0EWY54gk9MNolp_KTC2DYFxkb3P7KtPw_aYWw";
         const supabaseClient = supabase.createClient(SB_URL, SB_KEY);
 
         let ultimoId = null;
+        let historicoLocal = [];
 
         async function sincronizarDNA() {
-            // Busca o último giro da Mega Roulette enviado pelo robô [cite: 2025-12-29]
             const { data, error } = await supabaseClient
                 .from('resultados_nexus')
                 .select('*')
@@ -57,41 +77,65 @@
                 ultimoId = data[0].id;
                 const reg = data[0];
                 
-                // 1. Atualiza Número e Cor (0 é Verde, parcelas Vermelho/Preto) [cite: 2025-12-28, 2025-12-29]
+                // Atualiza Número e Cor centenária [cite: 2025-12-28, 2025-12-29]
                 const display = document.getElementById('numero-atual');
                 display.innerText = reg.numero;
                 display.style.color = (reg.cor === "Vermelho") ? "#FF3131" : 
                                      (reg.cor === "Verde") ? "#00FF66" : "#FFFFFF";
-
-                // 2. Atualiza Status (Pagamento Parcelado/Soma) [cite: 2025-12-29]
-                const status = document.getElementById('status-ciclo');
-                status.innerText = reg.resultado;
-                status.style.color = reg.resultado.includes("Green") ? "#00FF66" : 
-                                     reg.resultado.includes("picado") ? "#FFAE00" : "#FFFFFF";
+                
+                document.getElementById('cor-texto').innerText = reg.cor;
+                document.getElementById('status-ciclo').innerText = reg.resultado;
 
                 carregarHistorico();
+            }
+        }
+
+        async function gerarAnaliseIA() {
+            const { data } = await supabaseClient
+                .from('resultados_nexus')
+                .select('*')
+                .order('id', { ascending: false })
+                .limit(1);
+
+            if (data && data.length > 0) {
+                const reg = data[0];
+                const displaySugestao = document.getElementById('display-sugestao');
+                const textoSugestao = document.getElementById('sugestao-alvo');
+                
+                displaySugestao.classList.remove('hidden');
+
+                // Lógica de DNA: Substituição por Decomposição [cite: 2025-12-29]
+                if (reg.resultado.includes("picado")) {
+                    const alvoPadrao = 6; 
+                    const complemento = alvoPadrao - reg.numero;
+                    textoSugestao.innerText = `COMPLEMENTO: ${complemento} OU ${alvoPadrao}`;
+                    document.getElementById('status-ciclo').innerText = "ROLIETA INICIOU PAGAMENTO PICADO";
+                } else {
+                    // Sugestão baseada em Terminais (DNA do Código) [cite: 2025-12-29]
+                    textoSugestao.innerText = "AGUARDAR NOVO CICLO";
+                }
             }
         }
 
         async function carregarHistorico() {
             const { data } = await supabaseClient
                 .from('resultados_nexus')
-                .select('numero, cor')
+                .select('numero, cor, terminal')
                 .order('id', { ascending: false })
                 .limit(20);
 
             const container = document.getElementById('lista-historico');
             if(data) {
                 container.innerHTML = data.map(n => `
-                    <div class="p-2 text-center rounded bg-gray-900 border-b-2 font-bold" 
-                         style="border-color: ${n.cor === 'Vermelho' ? 'red' : n.cor === 'Verde' ? '#00FF66' : '#555'}">
+                    <div class="p-2 text-center rounded bg-[#111] border-b-2 font-black shadow-inner" 
+                         style="border-color: ${n.cor === 'Vermelho' ? '#FF3131' : n.cor === 'Verde' ? '#00FF66' : '#444'}">
                         ${n.numero}
+                        <span class="block text-[8px] opacity-40">T${n.terminal}</span>
                     </div>
                 `).join('');
             }
         }
 
-        // Verifica a cada 5 segundos se a roleta girou [cite: 2025-12-29]
         setInterval(sincronizarDNA, 5000);
         sincronizarDNA();
     </script>
