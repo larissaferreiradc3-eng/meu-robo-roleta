@@ -1,11 +1,18 @@
-import os, json, threading, websocket, time
+import os
 from http.server import HTTPServer, BaseHTTPRequestHandler
-from supabase import create_client
+import threading
 
-# CONFIGURAÇÕES DNA [cite: 2025-12-29]
-URL = "https://tpotbyekboefgbgmckp.supabase.co"
-KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRwb3RieWVrYm9lZmdjYmdtY2twIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2NjgwNzU2OCwiZXhwIjoyMDgyMzgzNTY4fQ.F7J0g_iTIE_7oxXsGpObSsRq7AApc1y7pvpLmYjQcgk"
-supabase = create_client(URL, KEY)
+# Função para manter o servidor "vivo" na porta exigida pela Render
+def start_dummy_server():
+    port = int(os.environ.get("PORT", 10000))
+    server = HTTPServer(('0.0.0.0', port), BaseHTTPRequestHandler)
+    print(f"Porta {port} aberta para o Render.")
+    server.serve_forever()
+
+# Inicia o servidor em uma thread separada para não travar sua IA
+threading.Thread(target=start_dummy_server, daemon=True).start()
+
+# ABAIXO DISSO VOCÊ COLOCA A LÓGICA DA IA NEXUS (NERA, ESTELAR, etc.)
 
 memoria_residuo = [] 
 
