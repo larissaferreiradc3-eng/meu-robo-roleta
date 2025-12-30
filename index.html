@@ -1,31 +1,99 @@
-// CONFIGURAÇÃO SUPABASE COM CHAVE ANON (Pública) [cite: 2025-12-29]
-const SB_URL = "https://tpotbyekboefgbgmckp.supabase.co";
-const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRwb3RieWVrYm9lZmdjYmdtY2twIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjY4MDc1NjgsImV4cCI6MjA4MjM4MzU2OH0.rlZzMH0EWY54gk9MNolp_KTC2DYFxkb3P7KtPw_aYWw";
-const supabaseClient = supabase.createClient(SB_URL, SB_KEY);
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEXUS IA — DNA DE LUXO</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        body { background-color: #0a0a0a; color: white; font-family: sans-serif; }
+        .card-dna { background: linear-gradient(145deg, #111, #080808); border: 1px solid #222; }
+        #numero-atual { transition: all 0.5s ease; }
+    </style>
+</head>
+<body class="flex flex-col items-center p-5">
 
-let ultimoId = null;
+    <div class="w-full max-w-md mt-10">
+        <h1 class="text-orange-500 font-bold text-2xl text-center mb-6">NEXUS IA <span class="text-white text-sm block">SISTEMA DNA PROFISSIONAL</span></h1>
 
-async function atualizarEspelhamento() {
-    const { data, error } = await supabaseClient
-        .from('resultados_nexus')
-        .select('*')
-        .order('id', { ascending: false })
-        .limit(1);
+        <div class="card-dna rounded-2xl p-8 text-center shadow-2xl">
+            <p class="text-blue-400 text-xs font-bold mb-4 tracking-widest">✅ DNA: MONITORANDO CICLOS</p>
+            
+            <div class="flex justify-center items-center gap-4">
+                <div id="numero-atual" class="text-8xl font-black italic">--</div>
+                
+                <div class="text-left border-l border-gray-700 pl-4">
+                    <p class="text-gray-500 text-xs uppercase">Status do Ciclo:</p>
+                    <p id="status-ciclo" class="font-bold text-sm">AGUARDANDO...</p>
+                </div>
+            </div>
+        </div>
 
-    if (data && data.length > 0 && data[0].id !== ultimoId) {
-        ultimoId = data[0].id;
-        const reg = data[0];
-        
-        // Atualiza Interface conforme DNA [cite: 2025-12-28, 2025-12-29]
-        document.getElementById('numero-atual').innerText = reg.numero;
-        document.getElementById('status-ciclo').innerText = reg.resultado;
-        
-        // Cores Centenárias [cite: 2025-12-28, 2025-12-29]
-        const display = document.getElementById('numero-atual');
-        display.style.color = (reg.cor === "Vermelho") ? "#FF3131" : 
-                             (reg.cor === "Verde") ? "#00FF66" : "#FFFFFF";
-    }
-}
+        <div class="mt-10">
+            <h2 class="text-xs text-gray-500 font-bold mb-4 uppercase tracking-widest">Histórico Real (Últimos 100 Giros)</h2>
+            <div id="lista-historico" class="grid grid-cols-5 gap-2">
+                </div>
+        </div>
+    </div>
 
-// Verifica novos giros a cada 5 segundos [cite: 2025-12-29]
-setInterval(atualizarEspelhamento, 5000);
+    <script>
+        // CONFIGURAÇÃO SUPABASE COM SUA CHAVE ANON [cite: 2025-12-29]
+        const SB_URL = "https://tpotbyekboefgbgmckp.supabase.co";
+        const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRwb3RieWVrYm9lZmdjYmdtY2twIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjY4MDc1NjgsImV4cCI6MjA4MjM4MzU2OH0.rlZzMH0EWY54gk9MNolp_KTC2DYFxkb3P7KtPw_aYWw";
+        const supabaseClient = supabase.createClient(SB_URL, SB_KEY);
+
+        let ultimoId = null;
+
+        async function sincronizarDNA() {
+            // Busca o último giro da Mega Roulette enviado pelo robô [cite: 2025-12-29]
+            const { data, error } = await supabaseClient
+                .from('resultados_nexus')
+                .select('*')
+                .order('id', { ascending: false })
+                .limit(1);
+
+            if (data && data.length > 0 && data[0].id !== ultimoId) {
+                ultimoId = data[0].id;
+                const reg = data[0];
+                
+                // 1. Atualiza Número e Cor (0 é Verde, parcelas Vermelho/Preto) [cite: 2025-12-28, 2025-12-29]
+                const display = document.getElementById('numero-atual');
+                display.innerText = reg.numero;
+                display.style.color = (reg.cor === "Vermelho") ? "#FF3131" : 
+                                     (reg.cor === "Verde") ? "#00FF66" : "#FFFFFF";
+
+                // 2. Atualiza Status (Pagamento Parcelado/Soma) [cite: 2025-12-29]
+                const status = document.getElementById('status-ciclo');
+                status.innerText = reg.resultado;
+                status.style.color = reg.resultado.includes("Green") ? "#00FF66" : 
+                                     reg.resultado.includes("picado") ? "#FFAE00" : "#FFFFFF";
+
+                carregarHistorico();
+            }
+        }
+
+        async function carregarHistorico() {
+            const { data } = await supabaseClient
+                .from('resultados_nexus')
+                .select('numero, cor')
+                .order('id', { ascending: false })
+                .limit(20);
+
+            const container = document.getElementById('lista-historico');
+            if(data) {
+                container.innerHTML = data.map(n => `
+                    <div class="p-2 text-center rounded bg-gray-900 border-b-2 font-bold" 
+                         style="border-color: ${n.cor === 'Vermelho' ? 'red' : n.cor === 'Verde' ? '#00FF66' : '#555'}">
+                        ${n.numero}
+                    </div>
+                `).join('');
+            }
+        }
+
+        // Verifica a cada 5 segundos se a roleta girou [cite: 2025-12-29]
+        setInterval(sincronizarDNA, 5000);
+        sincronizarDNA();
+    </script>
+</body>
+</html>
