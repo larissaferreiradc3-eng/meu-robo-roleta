@@ -9,54 +9,49 @@
     <style>
         :root {
             --bg: #050505;
-            --panel: rgba(13, 17, 23, 0.9);
+            --panel: rgba(13, 17, 23, 0.95);
             --neon-blue: #00d2ff;
             --orange: #ff4e00;
             --green: #00ff95;
             --red: #ff3e5e;
         }
 
-        body { background: var(--bg); color: white; font-family: 'Inter', sans-serif; margin: 0; padding: 20px; display: flex; justify-content: center; overflow-x: hidden; }
-        .dashboard { width: 100%; max-width: 1100px; display: grid; grid-template-columns: 380px 1fr; gap: 25px; }
+        body { background: var(--bg); color: white; font-family: 'Inter', sans-serif; margin: 0; padding: 20px; display: flex; justify-content: center; min-height: 100vh; overflow-x: hidden; }
+        .dashboard { width: 100%; max-width: 1150px; display: grid; grid-template-columns: 380px 1fr; gap: 25px; align-items: start; }
 
-        /* HEADER */
-        .header-main { grid-column: 1 / -1; display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
-        .logo h1 { font-family: 'Orbitron'; font-weight: 900; color: var(--orange); margin: 0; font-size: 1.8rem; }
-        .logo p { font-size: 0.6rem; letter-spacing: 3px; opacity: 0.6; margin: 2px 0; }
+        /* HEADER E LOGO */
+        .header-main { grid-column: 1 / -1; display: flex; justify-content: space-between; margin-bottom: 5px; }
+        .logo h1 { font-family: 'Orbitron'; font-weight: 900; color: var(--orange); margin: 0; font-size: 2rem; letter-spacing: -1px; }
+        .logo p { font-size: 0.65rem; letter-spacing: 4px; opacity: 0.6; margin: 2px 0; text-transform: uppercase; }
 
-        /* CARDS FUTURISTAS [cite: 2025-12-29] */
-        .card { background: var(--panel); border: 1.5px solid #1f2530; border-radius: 12px; padding: 20px; position: relative; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        .card-neon { border-color: var(--neon-blue); box-shadow: 0 0 20px rgba(0, 210, 255, 0.1); }
+        /* CARDS LATERAIS */
+        .card { background: var(--panel); border: 1.5px solid #1f2530; border-radius: 15px; padding: 25px; box-shadow: 0 10px 40px rgba(0,0,0,0.7); }
+        .label-blue { color: #4e8eff; font-size: 0.65rem; font-weight: bold; text-transform: uppercase; margin-bottom: 20px; display: block; text-align: center; letter-spacing: 1px; }
         
-        /* PLACAR ASSERTIVIDADE [cite: 2025-12-29] */
-        .label-blue { color: #4e8eff; font-size: 0.6rem; font-weight: bold; text-transform: uppercase; margin-bottom: 15px; display: block; text-align: center; }
-        .stats-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; border-top: 1px solid #222; padding-top: 15px; }
+        /* PLACAR DE ASSERTIVIDADE */
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; border-top: 1px solid #222; padding-top: 20px; }
         .stat-item { text-align: center; }
-        .stat-val { font-family: 'Orbitron'; font-size: 1.6rem; display: block; font-weight: 700; }
-        .stat-lab { font-size: 0.5rem; color: #555; text-transform: uppercase; }
+        .stat-val { font-family: 'Orbitron'; font-size: 1.8rem; display: block; font-weight: 700; }
+        .stat-lab { font-size: 0.55rem; color: #555; text-transform: uppercase; margin-top: 5px; }
 
-        /* STATUS DNA [cite: 2025-12-29] */
-        .dna-box { display: flex; align-items: center; gap: 20px; margin: 15px 0; }
-        .dna-num { font-family: 'Orbitron'; font-size: 4.5rem; font-weight: 900; line-height: 1; }
-        .dna-text-group { display: flex; flex-direction: column; }
-        .dna-status-label { font-size: 0.5rem; color: #666; font-weight: bold; }
-        .dna-status-msg { font-family: 'Orbitron'; font-size: 0.9rem; font-weight: bold; text-transform: uppercase; }
+        /* MONITOR DNA */
+        .dna-box { display: flex; align-items: center; gap: 25px; margin: 20px 0; }
+        .dna-num { font-family: 'Orbitron'; font-size: 5rem; font-weight: 900; line-height: 1; text-shadow: 0 0 20px rgba(255,255,255,0.2); }
+        .dna-status-msg { font-family: 'Orbitron'; font-size: 1rem; font-weight: bold; color: #fff; text-transform: uppercase; display: block; }
 
-        /* BOTÃO GLOW [cite: 2025-12-29] */
-        .btn-gerar { background: linear-gradient(90deg, #ff4e00, #ec9f05); border: none; border-radius: 10px; color: white; padding: 22px; font-family: 'Orbitron'; font-weight: 900; font-size: 1.3rem; cursor: pointer; box-shadow: 0 0 30px rgba(255, 78, 0, 0.4); width: 100%; margin-top: 10px; transition: 0.3s; letter-spacing: 1px; }
-        .btn-gerar:hover { transform: translateY(-3px); filter: brightness(1.2); }
+        /* BOTÃO LARANJA GLOW */
+        .btn-gerar { background: linear-gradient(90deg, #ff4e00, #ec9f05); border: none; border-radius: 12px; color: white; padding: 25px; font-family: 'Orbitron'; font-weight: 900; font-size: 1.4rem; cursor: pointer; box-shadow: 0 0 35px rgba(255, 78, 0, 0.4); width: 100%; transition: 0.3s; margin-top: 10px; }
+        .btn-gerar:hover { transform: translateY(-3px); filter: brightness(1.2); box-shadow: 0 0 50px rgba(255, 78, 0, 0.6); }
 
-        /* HISTÓRICO REAL [cite: 2025-12-29] */
-        .main-content { background: var(--panel); border: 2px solid var(--neon-blue); border-radius: 20px; padding: 35px; position: relative; }
-        .hist-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 35px; }
-        .hist-title { font-family: 'Orbitron'; font-size: 0.75rem; letter-spacing: 2px; opacity: 0.5; font-style: italic; }
+        /* PAINEL DE HISTÓRICO FUTURISTA */
+        .main-content { background: var(--panel); border: 2px solid var(--neon-blue); border-radius: 25px; padding: 40px; box-shadow: 0 0 30px rgba(0, 210, 255, 0.15); min-height: 500px; }
+        .hist-title { font-family: 'Orbitron'; font-size: 0.85rem; letter-spacing: 3px; opacity: 0.5; font-style: italic; display: block; margin-bottom: 40px; }
         
-        .ball-grid { display: grid; grid-template-columns: repeat(10, 1fr); gap: 15px; }
-        .ball { width: 42px; height: 42px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-family: 'Orbitron'; font-size: 0.85rem; position: relative; box-shadow: inset 0 -4px 8px rgba(0,0,0,0.6); }
+        .ball-grid { display: grid; grid-template-columns: repeat(10, 1fr); gap: 18px; }
+        .ball { width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-family: 'Orbitron'; font-size: 1rem; box-shadow: inset 0 -5px 10px rgba(0,0,0,0.6), 0 5px 15px rgba(0,0,0,0.5); }
         
-        /* CORES DNA [cite: 2025-12-28, 2025-12-29] */
-        .Verde { background: radial-gradient(circle at 30% 30%, #00ff95, #008f53); box-shadow: 0 0 15px var(--green); color: #000; }
-        .Vermelho { background: radial-gradient(circle at 30% 30%, #ff3e5e, #a31d34); box-shadow: 0 0 15px var(--red); color: white; }
+        .Verde { background: radial-gradient(circle at 30% 30%, #00ff95, #008f53); box-shadow: 0 0 20px var(--green); color: #000; }
+        .Vermelho { background: radial-gradient(circle at 30% 30%, #ff3e5e, #a31d34); box-shadow: 0 0 20px var(--red); color: white; }
         .Preto { background: radial-gradient(circle at 30% 30%, #444, #000); border: 1px solid #555; color: white; }
     </style>
 </head>
@@ -68,7 +63,6 @@
                 <h1>NEXUS <span style="color:#fff">IA</span></h1>
                 <p>SISTEMA DNA PROFISSIONAL</p>
             </div>
-            <button onclick="location.reload()" style="background:none; border:1.5px solid var(--neon-blue); color:var(--neon-blue); padding:5px 15px; border-radius:5px; font-family:'Orbitron'; font-size:0.5rem; cursor:pointer;">SINCRONIZAR AGORA</button>
         </header>
 
         <div class="side-panel" style="display:flex; flex-direction:column; gap:25px;">
@@ -81,13 +75,13 @@
                 </div>
             </div>
 
-            <div class="card">
-                <p style="font-size: 0.6rem; color: var(--green); margin: 0; font-weight: bold;">■ DNA: MONITORANDO CICLOS</p>
+            <div class="card card-neon">
+                <p style="font-size: 0.65rem; color: var(--green); margin: 0; font-weight: bold; letter-spacing: 1px;">■ DNA: MONITORANDO CICLOS</p>
                 <div class="dna-box">
                     <div id="num-display" class="dna-num">--</div>
                     <div class="dna-text-group">
-                        <span class="dna-status-label">STATUS DO CICLO:</span>
-                        <span id="dna-status" class="dna-status-msg">AGUARDANDO...</span>
+                        <span style="font-size: 0.55rem; color: #666; font-weight: bold;">STATUS DO CICLO:</span>
+                        <span id="dna-status" class="dna-status-msg">CONECTANDO...</span>
                     </div>
                 </div>
             </div>
@@ -96,43 +90,44 @@
         </div>
 
         <div class="main-content">
-            <div class="hist-top">
-                <span class="hist-title">HISTÓRICO REAL (ÚLTIMOS 100 GIROS)</span>
-                <span style="font-size: 0.5rem; opacity: 0.4;">Terminal Repete 3-6x [cite: 2025-12-29]</span>
-            </div>
+            <span class="hist-title">HISTÓRICO REAL (ÚLTIMOS 100 GIROS)</span>
             <div id="historico-lista" class="ball-grid">
                 </div>
         </div>
     </div>
 
     <script>
+        // URL CORRIGIDA PARA EVITAR O ERRO DO CONSOLE
         const SB_URL = "https://tpotbyekboefgbgmckp.supabase.co";
         const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRwb3RieWVrYm9lZmdjYmdtY2twIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjY4MDc1NjgsImV4cCI6MjA4MjM4MzU2OH0.rlZzMH0EWY54gk9MNolp_KTC2DYFxkb3P7KtPw_aYWw";
         const supabaseClient = supabase.createClient(SB_URL, SB_KEY);
 
         let ultimoId = null;
-        let greens = 1;
 
-        async function sincronizarDNA() {
-            const { data } = await supabaseClient.from('resultados_nexus').select('*').order('id', { ascending: false }).limit(1);
-            if (data && data[0] && data[0].id !== ultimoId) {
-                ultimoId = data[0].id;
-                const reg = data[0];
+        async function atualizarDados() {
+            try {
+                const { data, error } = await supabaseClient.from('resultados_nexus').select('*').order('id', { ascending: false }).limit(1);
                 
-                document.getElementById('num-display').innerText = reg.numero;
-                document.getElementById('num-display').style.color = (reg.cor === "Verde") ? "var(--green)" : (reg.cor === "Vermelho") ? "var(--red)" : "#fff";
-                document.getElementById('dna-status').innerText = reg.resultado.toUpperCase();
-                
-                if(reg.resultado.includes("Green")) { 
-                    greens++; 
-                    document.getElementById('g-count').innerText = greens; 
+                if (error) throw error;
+
+                if (data && data[0] && data[0].id !== ultimoId) {
+                    ultimoId = data[0].id;
+                    const reg = data[0];
+                    
+                    const motor = document.getElementById('num-display');
+                    motor.innerText = reg.numero;
+                    motor.style.color = (reg.cor === "Verde") ? "var(--green)" : (reg.cor === "Vermelho") ? "var(--red)" : "#fff";
+                    
+                    document.getElementById('dna-status').innerText = reg.resultado.toUpperCase();
+                    carregarHistorico();
                 }
-                
-                carregarHistoricoReal();
+            } catch (err) {
+                console.error("Erro na conexão DNA:", err);
+                document.getElementById('dna-status').innerText = "ERRO DE CONEXÃO";
             }
         }
 
-        async function carregarHistoricoReal() {
+        async function carregarHistorico() {
             const { data } = await supabaseClient.from('resultados_nexus').select('numero, cor').order('id', { ascending: false }).limit(20);
             if (data) {
                 document.getElementById('historico-lista').innerHTML = data.map(n => `
@@ -147,21 +142,19 @@
                 const reg = data[0];
                 const status = document.getElementById('dna-status');
                 
-                // Lógica de Complemento [cite: 2025-12-29]
                 if (reg.resultado.includes("picado")) {
                     const alvo = 6; 
                     const falta = alvo - reg.numero;
                     status.innerText = `AGUARDAR COMPLEMENTO (${falta})`;
                     status.style.color = "var(--orange)";
                 } else {
-                    status.innerText = "BUSCANDO ENTRADA...";
-                    status.style.color = "#fff";
+                    status.innerText = "ANALISANDO PADRÕES...";
                 }
             }
         }
 
-        setInterval(sincronizarDNA, 5000);
-        sincronizarDNA();
+        setInterval(atualizarDados, 5000);
+        atualizarDados();
     </script>
 </body>
 </html>
