@@ -5,107 +5,66 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NEXUS IA — DNA PROFISSIONAL</title>
     <style>
-        /* RECUPERANDO SEU VISUAL ORIGINAL */
-        body { background-color: #000; color: #fff; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; display: flex; height: 100vh; overflow: hidden; }
-        .container { display: flex; width: 100%; }
-        .painel-principal { flex: 2; padding: 40px; display: flex; flex-direction: column; gap: 20px; }
-        .historico-lateral { flex: 1; border-left: 2px solid #00f2ff; background: rgba(255,255,255,0.05); padding: 20px; overflow-y: auto; }
-        
-        .logo { color: #ff6600; font-size: 32px; font-weight: bold; }
-        .status-box { background: rgba(0,242,255,0.1); border: 2px solid #00f2ff; border-radius: 15px; padding: 30px; text-align: center; margin-top: 20px; }
-        #monitor-status { font-size: 28px; font-weight: bold; letter-spacing: 2px; }
-        
-        .btn-analise { background: linear-gradient(90deg, #ff6600, #ffcc00); border: none; padding: 20px; border-radius: 10px; color: #000; font-weight: bold; font-size: 18px; cursor: pointer; margin-top: 20px; text-transform: uppercase; }
-        
-        .bola { width: 45px; height: 45px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; margin: 5px; font-weight: bold; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
-        .red { background: #ff0000; } .black { background: #1a1a1a; border: 1px solid #444; } .green { background: #00ff00; color: #000; }
+        body { background-color: #000; color: #fff; font-family: sans-serif; margin: 0; display: flex; }
+        .container { display: flex; width: 100%; height: 100vh; }
+        .painel { flex: 2; padding: 40px; }
+        .lateral { flex: 1; border-left: 1px solid #00f2ff; padding: 20px; background: #050505; }
+        .status-box { border: 2px solid #00f2ff; border-radius: 15px; padding: 20px; margin-top: 20px; text-align: center; }
+        #monitor-status { font-size: 24px; font-weight: bold; color: #00f2ff; }
+        .btn { background: linear-gradient(to right, #ff6600, #ffcc00); border: none; padding: 15px 30px; border-radius: 10px; font-weight: bold; width: 100%; cursor: pointer; margin-top: 20px; }
+        .bola { width: 40px; height: 40px; border-radius: 50%; display: inline-block; margin: 5px; text-align: center; line-height: 40px; font-weight: bold; }
+        .Vermelho { background: #ff0000; } .Preto { background: #1a1a1a; border: 1px solid #444; } .Verde { background: #00ff00; color: #000; }
     </style>
 </head>
 <body>
-
-<div class="container">
-    <div class="painel-principal">
-        <div class="logo">NEXUS <span style="color:#fff; font-size:20px;">IA</span></div>
-        <p style="color: #888; margin-top: -15px;">SISTEMA DNA PROFISSIONAL</p>
-
-        <div style="display: flex; gap: 20px;">
-            <div style="text-align:center;"><h2 id="greens">0</h2><p>GREENS</p></div>
-            <div style="text-align:center;"><h2 id="losses">0</h2><p>LOSSES</p></div>
-            <div style="text-align:center;"><h2 id="winrate">100%</h2><p>WIN</p></div>
+    <div class="container">
+        <div class="painel">
+            <h1 style="color:#ff6600">NEXUS <span style="color:#fff">IA</span></h1>
+            <p style="color:#888">SISTEMA DNA PROFISSIONAL</p>
+            <div style="display:flex; gap:30px">
+                <div><h2>0</h2><p>GREENS</p></div>
+                <div><h2>0</h2><p>LOSSES</p></div>
+                <div><h2>100%</h2><p>WIN</p></div>
+            </div>
+            <div class="status-box">
+                <p style="text-align:left; color:#00f2ff; font-size:12px">■ MONITOR DE CICLOS DNA</p>
+                <div id="monitor-status">AGUARDANDO SINAL...</div>
+            </div>
+            <button class="btn">GERAR ANÁLISE IA</button>
         </div>
-
-        <div class="status-box">
-            <p style="color: #00f2ff; font-size: 12px; text-align: left; margin: 0;">■ MONITOR DE CICLOS DNA</p>
-            <div id="monitor-status">CONECTANDO SINAL...</div>
+        <div class="lateral">
+            <p style="color:#888; font-size:12px">HISTÓRICO REAL (ÚLTIMOS 100 GIROS)</p>
+            <div id="historico"></div>
         </div>
-
-        <button class="btn-analise">Gerar Análise IA</button>
     </div>
 
-    <div class="historico-lateral">
-        <h3 style="font-size: 14px; color: #888;">HISTÓRICO REAL (ÚLTIMOS 100 GIROS)</h3>
-        <div id="lista-bolinhas"></div>
-    </div>
-</div>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        const URL = "https://tpotbyekboefgbgmckp.supabase.co";
+        const KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRwb3RieWVrYm9lZmdjYmdtY2twIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2NjgwNzU2OCwiZXhwIjoyMDgyMzgzNTY4fQ.F7J0g_iTIE_7oxXsGpObSsRq7AApc1y7pvpLmYjQcgk";
+        const supabaseClient = supabase.createClient(URL, KEY);
 
-<script>
-    // 1. CONFIGURAÇÃO DAS NOVAS APIs
-    const WS_URL = 'wss://api.revesbot.com.br/ws';
-    let memoriaSoma = 0;
-
-    // 2. LÓGICA DE DNA E PARCELAMENTO [cite: 2025-12-29]
-    function analisarGatilho(num) {
-        const monitor = document.getElementById('monitor-status');
-        const alvo = 6;
-
-        if (num < alvo && num > 0) {
-            memoriaSoma += num;
-            if (memoriaSoma === alvo) {
-                memoriaSoma = 0;
-                monitor.innerText = "GREEN POR SOMA PARCELADA"; [cite: 2025-12-29]
-                monitor.style.color = "#00FF00";
-            } else {
-                monitor.innerText = "AGUARDAR COMPLEMENTO"; [cite: 2025-12-29]
-                monitor.style.color = "#FF8C00";
-            }
-        } else if (num === alvo) {
-            memoriaSoma = 0;
-            monitor.innerText = "GREEN DIRETO";
-            monitor.style.color = "#00FF00";
-        } else {
-            memoriaSoma = 0;
-            monitor.innerText = "ANALISANDO PADRÕES...";
-            monitor.style.color = "#fff";
+        async function carregarHistorico() {
+            const { data } = await supabaseClient.from('resultados_nexus').select('*').order('id', { ascending: false }).limit(20);
+            if (data) data.forEach(item => adicionarBola(item.numero, item.cor));
         }
-    }
 
-    // 3. CONEXÃO EM TEMPO REAL
-    function iniciarWebSocket() {
-        const socket = new WebSocket(WS_URL);
-        
-        socket.onmessage = (event) => {
-            const data = JSON.parse(event.data);
-            const n = data.numero;
-            // No DNA, o 0 é sempre Verde [cite: 2025-12-29]
-            const corCss = (n === 0) ? 'green' : (data.cor === 'red' ? 'red' : 'black');
-            
-            adicionarBolinha(n, corCss);
-            analisarGatilho(n);
-        };
+        function adicionarBola(num, cor) {
+            const div = document.createElement('div');
+            div.className = `bola ${cor}`;
+            div.innerText = num;
+            document.getElementById('historico').prepend(div);
+        }
 
-        socket.onclose = () => setTimeout(iniciarWebSocket, 3000);
-    }
+        // Escuta o Python enviando dados novos
+        supabaseClient.channel('custom-all-channel')
+        .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'resultados_nexus' }, (payload) => {
+            const novo = payload.new;
+            document.getElementById('monitor-status').innerText = novo.resultado;
+            adicionarBola(novo.numero, novo.cor);
+        }).subscribe();
 
-    function adicionarBolinha(num, cor) {
-        const lista = document.getElementById('lista-bolinhas');
-        const item = document.createElement('div');
-        item.className = `bola ${cor}`;
-        item.innerText = num;
-        lista.prepend(item);
-        if (lista.children.length > 100) lista.lastChild.remove();
-    }
-
-    iniciarWebSocket();
-</script>
+        carregarHistorico();
+    </script>
 </body>
 </html>
