@@ -1,35 +1,31 @@
-const _supabase = supabase.createClient('https://tpotbyekboefgcbgmckp.supabase.co', 'SUA_KEY_FORNECIDA');
+// CONFIGURAÇÃO SUPABASE COM CHAVE ANON (Pública) [cite: 2025-12-29]
+const SB_URL = "https://tpotbyekboefgbgmckp.supabase.co";
+const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRwb3RieWVrYm9lZmdjYmdtY2twIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjY4MDc1NjgsImV4cCI6MjA4MjM4MzU2OH0.rlZzMH0EWY54gk9MNolp_KTC2DYFxkb3P7KtPw_aYWw";
+const supabaseClient = supabase.createClient(SB_URL, SB_KEY);
 
-async function syncDashboard() {
-    const { data, error } = await _supabase
+let ultimoId = null;
+
+async function atualizarEspelhamento() {
+    const { data, error } = await supabaseClient
         .from('resultados_nexus')
         .select('*')
-        .order('created_at', { ascending: false });
+        .order('id', { ascending: false })
+        .limit(1);
 
-    if (data) {
-        // Histórico Automático de 100 Números
-        const historyContainer = document.getElementById('live-history');
-        historyContainer.innerHTML = data.slice(0, 100).map(item => `
-            <div class="ball ${item.cor}">${item.numero}</div>
-        `).join('');
-
-        // Cálculo de Assertividade (Greens vs Total)
-        const total = data.length;
-        const greens = data.filter(s => s.resultado.includes('Green')).length;
-        const rate = total > 0 ? ((greens / total) * 100).toFixed(1) : "0.0";
-
-        document.getElementById('win-rate').innerText = `${rate}%`;
-        document.getElementById('count-greens').innerText = greens;
-        document.getElementById('count-losses').innerText = total - greens;
-
-        // Saúde das Estratégias (Destaque para CDC e Estelar)
-        const stratHealth = document.getElementById('strategy-health');
-        stratHealth.innerHTML = `
-            <div class="strat-item">CDC Gabriel: <span>Estável</span></div>
-            <div class="strat-item">Estelar: <span>Em Operação</span></div>
-        `;
+    if (data && data.length > 0 && data[0].id !== ultimoId) {
+        ultimoId = data[0].id;
+        const reg = data[0];
+        
+        // Atualiza Interface conforme DNA [cite: 2025-12-28, 2025-12-29]
+        document.getElementById('numero-atual').innerText = reg.numero;
+        document.getElementById('status-ciclo').innerText = reg.resultado;
+        
+        // Cores Centenárias [cite: 2025-12-28, 2025-12-29]
+        const display = document.getElementById('numero-atual');
+        display.style.color = (reg.cor === "Vermelho") ? "#FF3131" : 
+                             (reg.cor === "Verde") ? "#00FF66" : "#FFFFFF";
     }
 }
 
-// Atualização rápida a cada 2 segundos
-setInterval(syncDashboard, 2000);
+// Verifica novos giros a cada 5 segundos [cite: 2025-12-29]
+setInterval(atualizarEspelhamento, 5000);
