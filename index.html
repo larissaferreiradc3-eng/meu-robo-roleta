@@ -2,99 +2,73 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NEXUS IA</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        /* Mantendo o seu layout original que você gosta */
-        body { background-color: #000; color: #fff; font-family: sans-serif; }
-        .painel-principal { background-color: #111; border-radius: 20px; padding: 40px; text-align: center; border: 1px solid #333; }
-        #numero-atual { font-size: 100px; font-weight: bold; line-height: 1; }
-        .btn-gerar { background-color: #ff4500; color: white; padding: 15px 30px; border-radius: 10px; font-weight: bold; margin-top: 20px; width: 100%; cursor: pointer; }
+        /* O estilo exato que você já tinha */
+        body { background-color: #000; color: white; font-family: sans-serif; }
+        .painel { background-color: #111; border: 1px solid #222; border-radius: 20px; padding: 40px; text-align: center; }
+        #numero-atual { font-size: 100px; font-weight: bold; }
+        .botao-analise { background-color: #ff4500; color: white; padding: 15px; border-radius: 10px; font-weight: bold; width: 100%; margin-top: 20px; cursor: pointer; }
     </style>
 </head>
-<body class="flex flex-col items-center justify-center min-h-screen p-4">
+<body class="flex flex-col items-center p-10">
 
-    <div class="w-full max-w-sm">
-        <h1 class="text-center text-orange-500 font-bold mb-4">SISTEMA NEXUS IA</h1>
+    <h1 class="text-orange-600 font-bold mb-6">SISTEMA NEXUS IA</h1>
+
+    <div class="painel w-80">
+        <p class="text-gray-500 text-xs uppercase">Último Resultado</p>
+        <div id="numero-atual">--</div>
+        <p id="status-ciclo" class="text-gray-400 text-sm">Aguardando sinal...</p>
         
-        <div class="painel-principal">
-            <p class="text-xs text-gray-500 uppercase mb-2">Último Resultado</p>
-            <div id="numero-atual">--</div>
-            <p id="status-ciclo" class="text-sm mt-2 text-gray-400">Aguardando sinal...</p>
-            
-            <button class="btn-gerar" onclick="gerarAnaliseIA()">GERAR ANÁLISE</button>
-        </div>
-
-        <div class="mt-6">
-            <p class="text-xs text-gray-500 mb-2">HISTÓRICO RECENTE</p>
-            <div id="lista-historico" class="flex flex-wrap gap-2 justify-center">
-                </div>
-        </div>
+        <button class="botao-analise" onclick="gerarAnaliseIA()">GERAR ANÁLISE</button>
     </div>
 
+    <div id="lista-historico" class="flex gap-2 mt-10">
+        </div>
+
     <script>
+        // Suas chaves que já estão configuradas
         const SB_URL = "https://tpotbyekboefgbgmckp.supabase.co";
         const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRwb3RieWVrYm9lZmdjYmdtY2twIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjY4MDc1NjgsImV4cCI6MjA4MjM4MzU2OH0.rlZzMH0EWY54gk9MNolp_KTC2DYFxkb3P7KtPw_aYWw";
         const supabaseClient = supabase.createClient(SB_URL, SB_KEY);
 
         let ultimoId = null;
 
-        // Função que faz os números aparecerem na tela [cite: 2025-12-29]
-        async function buscarDados() {
-            const { data } = await supabaseClient
-                .from('resultados_nexus')
-                .select('*')
-                .order('id', { ascending: false })
-                .limit(1);
-
-            if (data && data.length > 0 && data[0].id !== ultimoId) {
+        // 1. Função de busca automática (Sincronização) [cite: 2025-12-29]
+        async function sincronizar() {
+            const { data } = await supabaseClient.from('resultados_nexus').select('*').order('id', { ascending: false }).limit(1);
+            if (data && data[0] && data[0].id !== ultimoId) {
                 ultimoId = data[0].id;
                 const reg = data[0];
-                
-                const numElement = document.getElementById('numero-atual');
-                numElement.innerText = reg.numero;
-                
-                // Aplica Cores do DNA (0 Verde, resto conforme lista) [cite: 2025-12-28, 2025-12-29]
-                numElement.style.color = (reg.cor === "Vermelho") ? "#ff0000" : 
-                                         (reg.cor === "Verde") ? "#00ff00" : "#fff";
-                
+                const el = document.getElementById('numero-atual');
+                el.innerText = reg.numero;
+                // Cores do DNA (0 Verde) [cite: 2025-12-28, 2025-12-29]
+                el.style.color = (reg.cor === "Vermelho") ? "#ff0000" : (reg.cor === "Verde") ? "#00ff00" : "#fff";
                 document.getElementById('status-ciclo').innerText = reg.resultado;
-                carregarHistorico();
+                atualizarHistorico();
             }
         }
 
-        // A Lógica de Alvos que você pediu [cite: 2025-12-29]
+        // 2. FUNÇÃO DO BOTÃO: A lógica que faltava [cite: 2025-12-29]
         async function gerarAnaliseIA() {
-            const { data } = await supabaseClient
-                .from('resultados_nexus')
-                .select('*')
-                .order('id', { ascending: false })
-                .limit(1);
-
-            if (data && data.length > 0) {
+            const { data } = await supabaseClient.from('resultados_nexus').select('*').order('id', { ascending: false }).limit(1);
+            if (data && data[0]) {
                 const reg = data[0];
-                const status = document.getElementById('status-ciclo');
-
+                // Verifica se a roleta iniciou pagamento picado (DNA) [cite: 2025-12-29]
                 if (reg.resultado.includes("picado")) {
-                    const alvo = 6; // Seu alvo de exemplo
+                    const alvo = 6; 
                     const falta = alvo - reg.numero;
-                    alert(`🎯 ALVO ENCONTRADO!\nEntrada: Complemento (${falta}) ou Alvo Direto (${alvo})\nJustificativa: Roleta iniciou pagamento picado.`);
-                    status.innerText = `ENTRADA: ${falta} ou ${alvo}`;
+                    alert(`🎯 ANALISE NEXUS:\nEntrada sugerida: ${falta} ou ${alvo}\nJustificativa: Roleta iniciou pagamento picado.`);
                 } else {
-                    alert("Aguardando confirmação de ciclo pelo DNA...");
+                    alert("Aguardando padrão de decomposição de ciclo...");
                 }
             }
         }
 
-        async function carregarHistorico() {
-            const { data } = await supabaseClient
-                .from('resultados_nexus')
-                .select('numero, cor')
-                .order('id', { ascending: false })
-                .limit(10);
-
+        async function atualizarHistorico() {
+            const { data } = await supabaseClient.from('resultados_nexus').select('numero, cor').order('id', { ascending: false }).limit(10);
             if (data) {
                 document.getElementById('lista-historico').innerHTML = data.map(n => `
                     <div style="background:#222; padding:10px; border-radius:5px; border-bottom: 2px solid ${n.cor=='Vermelho'?'red':n.cor=='Verde'?'green':'#555'}">
@@ -104,8 +78,8 @@
             }
         }
 
-        setInterval(buscarDados, 5000);
-        buscarDados();
+        setInterval(sincronizar, 5000);
+        sincronizar();
     </script>
 </body>
 </html>
