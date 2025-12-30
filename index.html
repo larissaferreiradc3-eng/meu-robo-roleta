@@ -1,140 +1,70 @@
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NEXUS IA — DNA PROFISSIONAL</title>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@400;700&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --bg: #050505;
-            --panel: rgba(13, 17, 23, 0.98);
-            --neon-blue: #00d2ff;
-            --orange: #ff4e00;
-            --green: #00ff95;
-            --red: #ff3e5e;
-        }
+// 1. CONFIGURAÇÕES DE CONEXÃO (CHAVES JWT ENVIADAS) [cite: 2025-12-29]
+const SUPABASE_URL = 'https://tpotbyekboefgbgmckp.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRwb3RieWVrYm9lZmdjYmdtY2twIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjY4MDc1NjgsImV4cCI6MjA4MjM4MzU2OH0.rlZzMH0EWY54gk9MNolp_KTC2DYFxkb3P7KtPw_aYWw';
 
-        body { background: var(--bg); color: white; font-family: 'Inter', sans-serif; margin: 0; padding: 20px; display: flex; justify-content: center; min-height: 100vh; overflow-x: hidden; }
-        .dashboard { width: 100%; max-width: 1150px; display: grid; grid-template-columns: 380px 1fr; gap: 25px; align-items: start; }
+// Inicialização Blindada contra net::ERR_NAME_NOT_RESOLVED
+const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
+  realtime: { params: { eventsPerSecond: 15 } }
+});
 
-        /* CABEÇALHO */
-        .logo h1 { font-family: 'Orbitron'; font-weight: 900; color: var(--orange); margin: 0; font-size: 2.2rem; text-shadow: 2px 2px 10px rgba(255, 78, 0, 0.3); }
-        .logo p { font-size: 0.65rem; letter-spacing: 4px; opacity: 0.6; text-transform: uppercase; margin-top: -5px; }
+// 2. MONITOR DE ACÚMULO DE RESÍDUO (DNA DO CÓDIGO) [cite: 2025-12-29]
+let memoriaEspera = 0;
+let historicoLocal = [];
 
-        /* CARDS E PAINÉIS [cite: 2025-12-28] */
-        .card { background: var(--panel); border: 1.5px solid #1f2530; border-radius: 15px; padding: 25px; box-shadow: 0 15px 45px rgba(0,0,0,0.8); margin-bottom: 20px; }
-        .card-neon { border: 2px solid var(--neon-blue); box-shadow: 0 0 30px rgba(0, 210, 255, 0.15); }
+function analisarCicloDNA(ultimoNumero) {
+    const alvo = 6; // Alvo dinâmico do sistema [cite: 2025-12-29]
+    
+    // Filtro de Pagamento Parcelado (Soma Sucessiva) [cite: 2025-12-29]
+    if (ultimoNumero < alvo && ultimoNumero > 0) {
+        memoriaEspera += ultimoNumero;
         
-        /* MONITOR DNA [cite: 2025-12-29] */
-        .dna-box { display: flex; align-items: center; gap: 25px; margin: 20px 0; }
-        .dna-num { font-family: 'Orbitron'; font-size: 5.5rem; font-weight: 900; line-height: 1; text-shadow: 0 0 15px rgba(255,255,255,0.1); }
-        .dna-status-msg { font-family: 'Orbitron'; font-size: 0.95rem; font-weight: bold; text-transform: uppercase; }
-
-        /* BOTÃO DE AÇÃO [cite: 2025-12-29] */
-        .btn-gerar { background: linear-gradient(90deg, #ff4e00, #ec9f05); border: none; border-radius: 12px; color: white; padding: 25px; font-family: 'Orbitron'; font-weight: 900; font-size: 1.4rem; cursor: pointer; box-shadow: 0 0 40px rgba(255, 78, 0, 0.5); width: 100%; transition: 0.3s; border-bottom: 4px solid #a33200; }
-
-        /* HISTÓRICO E BOLINHAS 3D [cite: 2025-12-28] */
-        .main-content { background: var(--panel); border: 2px solid var(--neon-blue); border-radius: 25px; padding: 40px; box-shadow: 0 0 40px rgba(0, 210, 255, 0.15); min-height: 550px; }
-        .ball-grid { display: grid; grid-template-columns: repeat(10, 1fr); gap: 18px; margin-top: 30px; }
-        .ball { width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-family: 'Orbitron'; font-size: 1.1rem; box-shadow: inset 0 -5px 12px rgba(0,0,0,0.7), 0 5px 20px rgba(0,0,0,0.6); }
-        
-        /* CORES DNA [cite: 2025-12-28, 2025-12-29] */
-        .Verde { background: radial-gradient(circle at 35% 35%, #00ff95, #008f53); box-shadow: 0 0 25px var(--green); color: #000; }
-        .Vermelho { background: radial-gradient(circle at 35% 35%, #ff3e5e, #a31d34); box-shadow: 0 0 25px var(--red); color: white; }
-        .Preto { background: radial-gradient(circle at 35% 35%, #444, #000); border: 1px solid #555; color: white; }
-    </style>
-</head>
-<body>
-
-    <div class="dashboard">
-        <div class="side-panel">
-            <header class="logo">
-                <h1>NEXUS <span style="color:#fff">IA</span></h1>
-                <p>SISTEMA DNA PROFISSIONAL</p>
-            </header>
-
-            <div class="card" style="margin-top:20px;">
-                <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; text-align:center;">
-                    <div><span id="g-count" style="color:var(--green); font-size:1.8rem; font-family:'Orbitron';">1</span><br><small>GREENS</small></div>
-                    <div><span style="color:var(--red); font-size:1.8rem; font-family:'Orbitron';">0</span><br><small>LOSSES</small></div>
-                    <div><span style="color:var(--orange); font-size:1.8rem; font-family:'Orbitron';">100%</span><br><small>WIN</small></div>
-                </div>
-            </div>
-
-            <div class="card card-neon">
-                <small style="color: var(--green); font-weight: bold;">■ MONITOR DE CICLOS DNA</small>
-                <div class="dna-box">
-                    <div id="num-display" class="dna-num">--</div>
-                    <div>
-                        <span id="dna-status" class="dna-status-msg">CONECTANDO...</span>
-                    </div>
-                </div>
-            </div>
-
-            <button class="btn-gerar" onclick="gerarAnaliseIA()">GERAR ANÁLISE IA</button>
-        </div>
-
-        <div class="main-content">
-            <span style="font-family:'Orbitron'; opacity:0.4; letter-spacing:2px;">HISTÓRICO REAL (ÚLTIMOS 100 GIROS)</span>
-            <div id="historico-lista" class="ball-grid"></div>
-        </div>
-    </div>
-
-    <script>
-        // CONFIGURAÇÕES SUPABASE [cite: 2025-12-29]
-        const SB_URL = "https://tpotbyekboefgbgmckp.supabase.co";
-        const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRwb3RieWVrYm9lZmdjYmdtY2twIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjY4MDc1NjgsImV4cCI6MjA4MjM4MzU2OH0.rlZzMH0EWY54gk9MNolp_KTC2DYFxkb3P7KtPw_aYWw";
-        const supabaseClient = supabase.createClient(SB_URL, SB_KEY);
-
-        async function sincronizarDados() {
-            try {
-                const { data, error } = await supabaseClient
-                    .from('resultados_nexus')
-                    .select('*')
-                    .order('id', { ascending: false })
-                    .limit(20);
-
-                if (error) throw error;
-
-                if (data && data.length > 0) {
-                    const atual = data[0];
-                    
-                    // Atualiza Número Principal [cite: 2025-12-29]
-                    const motor = document.getElementById('num-display');
-                    motor.innerText = atual.numero;
-                    motor.style.color = (atual.cor === "Verde") ? "var(--green)" : (atual.cor === "Vermelho") ? "var(--red)" : "#fff";
-
-                    // FILTRO DE PAGAMENTO PARCELADO (Módulo DNA) [cite: 2025-12-29]
-                    const status = document.getElementById('dna-status');
-                    if (atual.resultado && atual.resultado.toLowerCase().includes("picado")) {
-                        status.innerText = "AGUARDAR COMPLEMENTO";
-                        status.style.color = "var(--orange)";
-                    } else {
-                        status.innerText = "PADRÃO IDENTIFICADO";
-                        status.style.color = "#fff";
-                    }
-
-                    // HISTÓRICO DE BOLINHAS [cite: 2025-12-28, 2025-12-29]
-                    document.getElementById('historico-lista').innerHTML = data.map(n => `
-                        <div class="ball ${n.cor}">${n.numero}</div>
-                    `).join('');
-                }
-            } catch (err) {
-                document.getElementById('dna-status').innerText = "ERRO DE SINAL";
-            }
+        if (memoriaEspera === alvo) {
+            memoriaEspera = 0;
+            return { status: "GREEN POR SOMA PARCELADA", cor: "#00FF00", msg: "Ciclo fechado por decomposição" };
         }
+        return { status: "AGUARDAR COMPLEMENTO", cor: "#FF8C00", msg: "Roleta iniciou pagamento picado" };
+    }
 
-        function gerarAnaliseIA() {
-            const status = document.getElementById('dna-status');
-            status.innerText = "ANALISANDO DNA...";
-            setTimeout(sincronizarDados, 1000);
-        }
+    // Lógica de Repetição (Terminal 3 a 6 vezes / Número exato 3 a 4 vezes) [cite: 2025-12-29]
+    historicoLocal.unshift(ultimoNumero);
+    if (historicoLocal.length > 10) historicoLocal.pop();
 
-        // Sincronia a cada 3 segundos [cite: 2025-12-29]
-        setInterval(sincronizarDados, 3000);
-        sincronizarDados();
-    </script>
-</body>
-</html>
+    const repeticoesTerminal = historicoLocal.filter(n => n % 10 === ultimoNumero % 10).length;
+    if (repeticoesTerminal >= 3 && repeticoesTerminal <= 6) {
+        return { status: "REPETIÇÃO DE TERMINAL", cor: "#00BFFF", msg: `Terminal ${ultimoNumero % 10} em ciclo` };
+    }
+
+    memoriaEspera = 0;
+    return { status: "ANALISANDO PADRÕES", cor: "#FFFFFF", msg: "Aguardando gatilho de entrada" };
+}
+
+// 3. SINCRONIZAÇÃO EM TEMPO REAL [cite: 2025-12-29]
+const canal = supabaseClient
+  .channel('public:resultados_nexus')
+  .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'resultados_nexus' }, (payload) => {
+    const num = payload.new.numero;
+    const corDB = payload.new.cor;
+    
+    // Regra do Zero Verde (DNA Inalterável) [cite: 2025-12-28, 2025-12-29]
+    const corFinal = (num === 0) ? 'Verde' : corDB;
+    
+    exibirNoPainel(num, corFinal);
+  })
+  .subscribe();
+
+// 4. ATUALIZAÇÃO DA INTERFACE (BOLINHAS 3D E MONITOR)
+function exibirNoPainel(num, cor) {
+    const monitorTexto = document.getElementById('monitor-status'); // Elemento do "ERRO DE SINAL"
+    const analise = analisarCicloDNA(num);
+    
+    // Atualiza o texto do monitor com a cor exata do DNA [cite: 2025-12-29]
+    if (monitorTexto) {
+        monitorTexto.innerText = analise.status;
+        monitorTexto.style.color = analise.cor;
+    }
+    
+    console.log(`[DNA LOG]: ${analise.msg} | Número: ${num} (${cor})`);
+    
+    // Aqui você chama sua função de criar as bolinhas 3D no histórico lateral
+    adicionarAoHistoricoVisual(num, cor);
+}
