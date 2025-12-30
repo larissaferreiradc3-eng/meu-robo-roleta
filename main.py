@@ -6,110 +6,75 @@ import time
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from supabase import create_client
 
-# --- CONFIGURAÇÕES DE AMBIENTE ---
-URL = os.environ.get("SUPABASE_URL")
-KEY = os.environ.get("SUPABASE_KEY")
-TOKEN = os.environ.get("REVES_TOKEN") # Token capturado no F12
+# --- CONFIGURAÇÕES DO DNA NEXUS ---
+# As variáveis abaixo devem ser configuradas no painel do Render [cite: 2025-12-29]
+URL = "https://tpotbyekboefgbgmckp.supabase.co"
+# CHAVE SERVICE ROLE (Privada) para o robô poder gravar dados [cite: 2025-12-29]
+KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRwb3RieWVrYm9lZmdjYmdtY2twIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2NjgwNzU2OCwiZXhwIjoyMDgyMzgzNTY4fQ.F7J0g_iTIE_7oxXsGpObSsRq7AApc1y7pvpLmYjQcgk"
 
-if not URL or not KEY:
-    print("❌ Erro: SUPABASE_URL ou SUPABASE_KEY não configuradas no Render.")
-else:
-    supabase = create_client(URL, KEY)
+supabase = create_client(URL, KEY)
 
-# --- MÓDULO DNA: MONITOR DE ACÚMULO (NÃO EXCLUIR) ---
+# Memória de Espera para Parcelamento (DNA) [cite: 2025-12-29]
 memoria_residuo = [] 
 
-def processar_dna_luxo(numero):
+def processar_dna_mega(numero):
     global memoria_residuo
-    
-    # 🧬 Regras do DNA de Luxo [cite: 2025-12-29]
     vermelhos = [1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36]
     cor = "Verde" if numero == 0 else ("Vermelho" if numero in vermelhos else "Preto")
     terminal = numero % 10
-    alvo = 6 # Alvo exemplo para demonstrar a soma sucessiva
+    alvo = 6 
     
-    resultado_texto = "Analisando..."
-
-    # 🎰 Lógica de Substituição por Decomposição de Ciclo [cite: 2025-12-29]
+    # Lógica de Pagamento Parcelado (DNA do Código) [cite: 2025-12-29]
     if numero == alvo:
-        resultado_texto = "Green Direto ✅"
-        memoria_residuo = [] 
+        res = "Green Direto ✅"
+        memoria_residuo = []
     elif numero < alvo:
         memoria_residuo.append(numero)
-        soma_atual = sum(memoria_residuo)
-        if soma_atual == alvo:
-            resultado_texto = "Green por Soma Parcelada ✅"
+        if sum(memoria_residuo) == alvo:
+            res = "Green por Soma Parcelada ✅"
             memoria_residuo = []
         else:
-            resultado_texto = "Roleta iniciou pagamento picado"
+            res = "Roleta iniciou pagamento picado"
     else:
-        resultado_texto = "Aguardando Complemento"
-        # Mantém resíduo se for útil, ou limpa se o ciclo quebrar
-        if numero > alvo and len(memoria_residuo) > 0:
-            memoria_residuo = []
+        res = "Aguardando Padrão"
+        memoria_residuo = []
 
-    # --- ENVIO PARA O BANCO (ESPELHAMENTO) ---
     payload = {
         "numero": numero,
         "terminal": terminal,
-        "resultado": resultado_texto,
+        "resultado": res,
         "cor": cor,
-        "estrategia": "Mega Roulette - Espelhamento Real"
+        "estrategia": "Mega Roulette - DNA Luxo"
     }
-
+    
     try:
         supabase.table("resultados_nexus").insert(payload).execute()
-        print(f"🎰 MEGA ROULETTE: {numero} ({cor}) | {resultado_texto}")
+        print(f"📡 DNA: {numero} | {res}")
     except Exception as e:
-        print(f"❌ Erro ao gravar no Banco: {e}")
+        print(f"❌ Erro: {e}")
 
-# --- CONEXÃO COM A API (SINAL CAPTURADO) ---
 def on_message(ws, message):
-    try:
-        data = json.loads(message)
-        # Filtro exato para o slug que você me enviou!
-        if data.get("slug") == "pragmatic-mega-roulette":
-            if "result" in data:
-                numero = int(data.get("result"))
-                processar_dna_luxo(numero)
-    except:
-        pass
-
-def on_open(ws):
-    print("📡 Conectado! Enviando comando de espelhamento para Mega Roulette...")
-    
-    # Se você tiver o Token, a API exige autenticação
-    if TOKEN:
-        ws.send(json.dumps({"action": "auth", "token": TOKEN}))
-    
-    # Comando de inscrição na mesa correta [cite: 2025-12-29]
-    subscribe_msg = {
-        "action": "subscribe",
-        "slug": "pragmatic-mega-roulette"
-    }
-    ws.send(json.dumps(subscribe_msg))
+    data = json.loads(message)
+    # Filtro específico para o sinal da Mega Roulette [cite: 2025-12-29]
+    if data.get("slug") == "pragmatic-mega-roulette":
+        processar_dna_mega(int(data.get("result")))
 
 def iniciar_websocket():
     while True:
         try:
-            ws = websocket.WebSocketApp(
-                "wss://api.revesbot.com.br/ws",
-                on_open=on_open,
-                on_message=on_message
-            )
-            # Mantém a conexão viva
-            ws.run_forever(ping_interval=30, ping_timeout=10)
-        except Exception as e:
-            print(f"🔌 Conexão perdida: {e}. Reconectando em 5s...")
+            ws = websocket.WebSocketApp("wss://api.revesbot.com.br/ws",
+                on_open=lambda ws: ws.send(json.dumps({"action": "subscribe", "slug": "pragmatic-mega-roulette"})),
+                on_message=on_message)
+            ws.run_forever(ping_interval=30)
+        except:
             time.sleep(5)
 
-# --- SERVIDOR KEEP-ALIVE (RENDER) ---
+# Keep-Alive para o Render [cite: 2025-12-29]
 class Health(BaseHTTPRequestHandler):
     def do_GET(self):
         self.send_response(200); self.end_headers()
-        self.wfile.write(b"SISTEMA NEXUS IA: ESPELHAMENTO ATIVO")
+        self.wfile.write(b"NEXUS DNA ONLINE")
 
 if __name__ == "__main__":
-    # Inicia servidor de manutenção na porta 10000 (Exigência do Render)
     threading.Thread(target=lambda: HTTPServer(('0.0.0.0', 10000), Health).serve_forever(), daemon=True).start()
     iniciar_websocket()
