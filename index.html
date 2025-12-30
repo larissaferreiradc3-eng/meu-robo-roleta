@@ -1,46 +1,91 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NEXUS IA — Surpass Yourself</title>
-    <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Inter:wght@300;400;700&display=swap" rel="stylesheet">
+    <title>NEXUS IA — DNA DE LUXO</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        /* CSS do DNA que você forneceu [cite: 2025-12-29] */
+        body { background: #050505; color: white; font-family: 'Orbitron', sans-serif; }
+        .neon-border { border: 1px solid #3b82f6; box-shadow: 0 0 15px rgba(59, 130, 246, 0.5); }
+        .neon-text-orange { color: #f97316; text-shadow: 0 0 10px rgba(249, 115, 22, 0.8); }
+        .glass { background: rgba(20, 20, 25, 0.8); backdrop-filter: blur(10px); }
+    </style>
 </head>
-<body>
-    <div class="app-container">
-        <header class="main-nav">
-            <div class="logo">NEXUS <span>IA</span></div>
-            <div class="user-status">VIP - ONLINE</div>
+<body class="p-4 md:p-10">
+    <div class="max-w-6xl mx-auto">
+        <header class="flex justify-between items-center mb-10">
+            <h1 class="text-2xl font-bold tracking-widest neon-text-orange">NEXUS IA <span class="text-white text-xs block">VIP ONLINE</span></h1>
         </header>
 
-        <div class="dashboard-grid">
-            <div class="card stats-card">
-                <h3>ASSERTIVIDADE</h3>
-                <div class="stats-main">
-                    <div id="win-rate" class="percent">0.0%</div>
-                    <div class="stats-counters">
-                        <div class="counter win">Greens: <span id="count-greens">0</span></div>
-                        <div class="counter loss">Losses: <span id="count-losses">0</span></div>
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div class="lg:col-span-2 space-y-6">
+                <div class="glass p-8 rounded-2xl neon-border">
+                    <h2 class="text-sm text-gray-400 mb-2 uppercase">Assertividade Geral</h2>
+                    <div id="porcentagem" class="text-6xl font-black neon-text-orange">0.0%</div>
+                    <p id="status-dna" class="mt-4 text-blue-400 animate-pulse text-sm">Aguardando leitura do banco...</p>
+                </div>
+
+                <div class="glass p-6 rounded-2xl border border-gray-800">
+                    <h3 class="text-gray-500 text-xs uppercase mb-4">Última Predição do Robô</h3>
+                    <div class="flex items-center gap-10">
+                        <div id="numero-alvo" class="text-7xl font-bold italic">--</div>
+                        <div>
+                            <p class="text-xs text-gray-500 uppercase">Resultado do Ciclo</p>
+                            <p id="resultado-texto" class="text-lg font-bold">Monitorando Terminais...</p>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <div class="card health-card">
-                <h3>SAÚDE DAS ESTRATÉGIAS</h3>
-                <div id="strategy-health" class="health-list">
-                    </div>
-            </div>
-
-            <div class="card history-card full-width">
-                <h3>HISTÓRICO DE CICLOS (DNA)</h3>
-                <div id="live-history" class="ball-grid">
+            <div class="glass p-6 rounded-2xl border border-gray-800 h-[500px] overflow-hidden">
+                <h3 class="text-xs font-bold text-gray-500 uppercase mb-4 italic">Histórico de Ciclos (DNA)</h3>
+                <div id="lista-historico" class="space-y-3 overflow-y-auto h-full pr-2">
                     </div>
             </div>
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
-    <script src="main.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        const supabaseUrl = 'https://tpotbyekboefgcbgmckp.supabase.co';
+        const supabaseKey = 'SUA_CHAVE_ANON_AQUI'; // VOCÊ PRECISA COLAR A CHAVE AQUI! [cite: 2025-12-29]
+        const _supabase = supabase.createClient(supabaseUrl, supabaseKey);
+
+        async function atualizarInterface() {
+            const { data } = await _supabase
+                .from('resultados_nexus')
+                .select('*')
+                .order('created_at', { ascending: false })
+                .limit(20);
+
+            if (data && data.length > 0) {
+                const ultimo = data[0];
+                document.getElementById('numero-alvo').innerText = ultimo.numero;
+                document.getElementById('resultado-texto').innerText = ultimo.resultado || "Aguardando...";
+                
+                // Lógica de Parcelamento Visual [cite: 2025-12-29]
+                if(ultimo.resultado && ultimo.resultado.includes("picado")) {
+                    document.getElementById('status-dna').innerText = "Roleta iniciou pagamento picado (Aguardando complemento)";
+                } else {
+                    document.getElementById('status-dna').innerText = "Análise de Ciclo Concluída";
+                }
+
+                // Renderiza histórico
+                const lista = document.getElementById('lista-historico');
+                lista.innerHTML = data.map(d => `
+                    <div class="flex justify-between items-center p-3 bg-white/5 rounded-lg border-l-4 ${d.resultado && d.resultado.includes('✅') ? 'border-green-500' : 'border-blue-500'}">
+                        <span class="text-2xl font-bold">${d.numero}</span>
+                        <span class="text-[10px] uppercase opacity-50">${d.resultado || 'Analisando'}</span>
+                    </div>
+                `).join('');
+            }
+        }
+
+        // Atualiza a cada 5 segundos [cite: 2025-12-29]
+        setInterval(atualizarInterface, 5000);
+        atualizarInterface();
+    </script>
 </body>
 </html>
