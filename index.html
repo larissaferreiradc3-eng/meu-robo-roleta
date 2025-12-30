@@ -2,6 +2,7 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NEXUS IA — DNA DE LUXO</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
@@ -10,55 +11,61 @@
         .neon-border { border: 1px solid #3b82f6; box-shadow: 0 0 15px rgba(59, 130, 246, 0.3); }
         .neon-text-orange { color: #f97316; text-shadow: 0 0 10px rgba(249, 115, 22, 0.8); }
         .glass { background: rgba(20, 20, 25, 0.8); backdrop-filter: blur(10px); }
-        .grid-numbers { display: grid; grid-template-columns: repeat(10, 1fr); gap: 6px; }
-        .ball { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: bold; border: 1px solid rgba(255,255,255,0.1); }
-        .bg-roulette-red { background-color: #e11d48; color: white; border-color: #fb7185; }
-        .bg-roulette-black { background-color: #171717; color: white; border-color: #404040; }
-        .bg-roulette-zero { background-color: #16a34a; color: white; border-color: #4ade80; }
-        .btn-nexus { background: linear-gradient(90deg, #f97316, #ef4444); box-shadow: 0 0 20px rgba(249, 115, 22, 0.5); }
+        .grid-numbers { display: grid; grid-template-columns: repeat(10, 1fr); gap: 8px; }
+        .ball { width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; border: 1px solid rgba(255,255,255,0.2); transition: transform 0.3s; }
+        .ball:hover { transform: scale(1.2); z-index: 10; }
+        .bg-roulette-red { background: radial-gradient(circle at 30% 30%, #ff4d4d, #990000); box-shadow: 0 0 10px #ff0000; }
+        .bg-roulette-black { background: radial-gradient(circle at 30% 30%, #444, #000); box-shadow: 0 0 5px #333; }
+        .bg-roulette-zero { background: radial-gradient(circle at 30% 30%, #4ade80, #064e3b); box-shadow: 0 0 10px #16a34a; }
+        .btn-nexus { background: linear-gradient(90deg, #f97316, #ef4444); box-shadow: 0 0 20px rgba(249, 115, 22, 0.5); border: none; cursor: pointer; }
+        .btn-nexus:active { transform: scale(0.98); }
     </style>
 </head>
 <body class="p-4 md:p-8">
     <div class="max-w-7xl mx-auto">
         <header class="flex justify-between items-center mb-8">
-            <h1 class="text-2xl font-bold tracking-widest neon-text-orange">NEXUS IA <span class="text-white text-[10px] block font-light">SISTEMA DNA PROFISSIONAL</span></h1>
-            <button onclick="atualizarInterface()" class="px-4 py-2 bg-blue-600/10 border border-blue-500/50 rounded text-[9px] text-blue-400 hover:bg-blue-600/20 transition tracking-widest">SINCRONIZAR AGORA</button>
+            <div>
+                <h1 class="text-3xl font-bold tracking-widest neon-text-orange">NEXUS IA</h1>
+                <p class="text-white text-[10px] tracking-[4px] opacity-70">SISTEMA DNA PROFISSIONAL</p>
+            </div>
+            <button onclick="atualizarInterface()" class="px-6 py-2 bg-blue-600/10 border border-blue-500/50 rounded text-[10px] text-blue-400 hover:bg-blue-600/20 transition tracking-widest uppercase">Sincronizar Agora</button>
         </header>
 
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
             <div class="lg:col-span-4 space-y-6">
                 <div class="glass p-6 rounded-2xl neon-border text-center">
-                    <h3 class="text-[9px] text-gray-400 uppercase mb-4 tracking-widest font-bold text-blue-400">Assertividade Acumulada</h3>
+                    <h3 class="text-[10px] text-blue-400 uppercase mb-4 tracking-widest font-bold">Assertividade Acumulada</h3>
                     <div class="flex justify-around items-center">
-                        <div><p class="text-green-500 text-3xl font-black" id="count-green">0</p><p class="text-[8px] text-gray-500 uppercase">Greens</p></div>
-                        <div class="h-8 w-[1px] bg-gray-800"></div>
-                        <div><p class="text-red-500 text-3xl font-black" id="count-loss">0</p><p class="text-[8px] text-gray-500 uppercase">Losses</p></div>
-                        <div class="h-8 w-[1px] bg-gray-800"></div>
-                        <div><p class="neon-text-orange text-3xl font-black" id="porcentagem">0%</p><p class="text-[8px] text-gray-500 uppercase">Win Rate</p></div>
+                        <div><p class="text-green-500 text-4xl font-black" id="count-green">0</p><p class="text-[9px] text-gray-500 uppercase">Greens</p></div>
+                        <div class="h-10 w-[1px] bg-gray-800"></div>
+                        <div><p class="text-red-500 text-4xl font-black" id="count-loss">0</p><p class="text-[9px] text-gray-500 uppercase">Losses</p></div>
+                        <div class="h-10 w-[1px] bg-gray-800"></div>
+                        <div><p class="neon-text-orange text-4xl font-black" id="porcentagem">0%</p><p class="text-[9px] text-gray-500 uppercase">Win Rate</p></div>
                     </div>
                 </div>
 
                 <div class="glass p-6 rounded-2xl border border-gray-800">
-                    <p id="status-dna" class="text-blue-400 text-[9px] mb-2 italic">Aguardando processamento...</p>
+                    <p id="status-dna" class="text-blue-400 text-[10px] mb-2 italic tracking-wider">AGUARDANDO PROCESSAMENTO...</p>
                     <div class="flex items-center gap-6">
-                        <div id="numero-alvo" class="text-6xl font-black italic">--</div>
+                        <div id="numero-alvo" class="text-7xl font-black italic">--</div>
                         <div class="space-y-1">
-                            <p class="text-[10px] text-gray-500 uppercase tracking-tighter">Status do Ciclo:</p>
-                            <p id="resultado-texto" class="text-sm font-bold uppercase text-white tracking-tight">Analisando Mesa...</p>
+                            <p class="text-[11px] text-gray-500 uppercase">Status do Ciclo:</p>
+                            <p id="resultado-texto" class="text-sm font-bold uppercase text-white tracking-widest">ANALISANDO MESA...</p>
                         </div>
                     </div>
                 </div>
 
-                <button onclick="atualizarInterface()" class="btn-nexus w-full py-5 rounded-xl text-lg font-black tracking-widest flex items-center justify-center gap-3 active:scale-95 transition-all">GERAR ANÁLISE IA</button>
+                <button onclick="atualizarInterface()" class="btn-nexus w-full py-6 rounded-xl text-xl font-black tracking-[5px] uppercase transition-all">Gerar Análise IA</button>
             </div>
 
             <div class="lg:col-span-8">
-                <div class="glass p-6 rounded-2xl border border-gray-800 h-full">
-                    <div class="flex justify-between items-center mb-6">
-                        <h3 class="text-[10px] font-bold text-gray-400 uppercase italic tracking-widest">Histórico Real (Últimos 100 Giros)</h3>
-                        <span class="text-[9px] text-gray-600 font-mono italic">Terminal Repete 3-6x [cite: 2025-12-29]</span>
+                <div class="glass p-8 rounded-2xl border border-gray-800 min-h-[500px]">
+                    <div class="flex justify-between items-center mb-8 border-b border-gray-800 pb-4">
+                        <h3 class="text-[11px] font-bold text-gray-400 uppercase italic tracking-[3px]">Histórico Real (Últimos 100 Giros)</h3>
+                        <span class="text-[10px] text-gray-600 font-mono italic">Terminal Repete 3-6x [cite: 2025-12-29]</span>
                     </div>
-                    <div id="grid-100" class="grid-numbers"></div>
+                    <div id="grid-100" class="grid-numbers">
+                        </div>
                 </div>
             </div>
         </div>
@@ -71,41 +78,58 @@
         const _supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
         const vermelho = [1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36];
-        const preto = [2,4,6,8,10,11,13,15,17,20,22,24,26,28,29,31,33,35];
 
-        function obterClasseCor(num) {
-            if (num === 0) return 'bg-roulette-zero';
-            if (vermelho.includes(Number(num))) return 'bg-roulette-red';
-            if (preto.includes(Number(num))) return 'bg-roulette-black';
-            return 'bg-white/5';
+        function getCor(num) {
+            if (num === 0 || num === '0') return 'bg-roulette-zero';
+            return vermelho.includes(Number(num)) ? 'bg-roulette-red' : 'bg-roulette-black';
         }
 
         async function atualizarInterface() {
-            const { data, error } = await _supabase.from('resultados_nexus').select('*').order('created_at', { ascending: false }).limit(100);
-            if (data) {
-                const greens = data.filter(d => d.resultado && d.resultado.includes('✅')).length;
-                const losses = data.filter(d => d.resultado && d.resultado.includes('❌')).length;
-                document.getElementById('count-green').innerText = greens;
-                document.getElementById('count-loss').innerText = losses;
-                document.getElementById('porcentagem').innerText = (greens + losses) > 0 ? (((greens / (greens + losses)) * 100).toFixed(0) + "%") : "0%";
+            try {
+                const { data, error } = await _supabase
+                    .from('resultados_nexus')
+                    .select('*')
+                    .order('created_at', { ascending: false })
+                    .limit(100);
 
-                const ultimo = data[0];
-                document.getElementById('numero-alvo').innerText = ultimo.numero;
-                document.getElementById('resultado-texto').innerText = ultimo.resultado || "AGUARDANDO";
-                
-                const statusDna = document.getElementById('status-dna');
-                if(ultimo.resultado && ultimo.resultado.toLowerCase().includes("picado")) {
-                    statusDna.innerText = "⚠️ DNA: ROLETA EM PAGAMENTO PARCELADO";
-                    statusDna.classList.add('animate-pulse');
-                } else {
-                    statusDna.innerText = "✅ DNA: MONITORANDO CICLOS";
-                    statusDna.classList.remove('animate-pulse');
-                }
+                if (error) throw error;
 
                 const grid = document.getElementById('grid-100');
-                grid.innerHTML = data.map(d => `<div class="ball ${obterClasseCor(d.numero)}">${d.numero}</div>`).join('');
+                if (!data || data.length === 0) {
+                    grid.innerHTML = '<div class="col-span-10 text-center py-20 text-gray-600 italic text-[12px]">BANCO DE DADOS LIMPO. AGUARDANDO PRIMEIRO GIRO...</div>';
+                    return;
+                }
+
+                // Atualiza Números Centenários com Cores Reais [cite: 2025-12-28]
+                grid.innerHTML = data.map(d => `<div class="ball ${getCor(d.numero)}">${d.numero}</div>`).join('');
+
+                // Atualiza Placar [cite: 2025-12-29]
+                const greens = data.filter(d => d.resultado?.includes('✅')).length;
+                const losses = data.filter(d => d.resultado?.includes('❌')).length;
+                document.getElementById('count-green').innerText = greens;
+                document.getElementById('count-loss').innerText = losses;
+                const total = greens + losses;
+                document.getElementById('porcentagem').innerText = total > 0 ? Math.round((greens / total) * 100) + "%" : "0%";
+
+                // Monitoramento de DNA (Pagamento Parcelado) [cite: 2025-12-29]
+                const ultimo = data[0];
+                document.getElementById('numero-alvo').innerText = ultimo.numero;
+                document.getElementById('resultado-texto').innerText = ultimo.resultado || "ANALISANDO";
+                
+                const statusDna = document.getElementById('status-dna');
+                if (ultimo.resultado?.toLowerCase().includes("parcelado") || ultimo.resultado?.toLowerCase().includes("picado")) {
+                    statusDna.innerText = "⚠️ DNA: ROLETA EM PAGAMENTO PARCELADO";
+                    statusDna.classList.add('text-orange-500', 'animate-pulse');
+                } else {
+                    statusDna.innerText = "✅ DNA: MONITORANDO CICLOS";
+                    statusDna.classList.remove('text-orange-500', 'animate-pulse');
+                }
+
+            } catch (err) {
+                console.error("Erro Nexus:", err.message);
             }
         }
+
         setInterval(atualizarInterface, 5000);
         window.onload = atualizarInterface;
     </script>
