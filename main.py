@@ -1,20 +1,12 @@
-import os
-import json
-import threading
-import websocket
-import time
+import os, json, threading, websocket, time
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from supabase import create_client
 
-# --- CONFIGURAÇÕES DO DNA NEXUS ---
-# As variáveis abaixo devem ser configuradas no painel do Render [cite: 2025-12-29]
+# Configurações do DNA NEXUS
 URL = "https://tpotbyekboefgbgmckp.supabase.co"
-# CHAVE SERVICE ROLE (Privada) para o robô poder gravar dados [cite: 2025-12-29]
 KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRwb3RieWVrYm9lZmdjYmdtY2twIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2NjgwNzU2OCwiZXhwIjoyMDgyMzgzNTY4fQ.F7J0g_iTIE_7oxXsGpObSsRq7AApc1y7pvpLmYjQcgk"
-
 supabase = create_client(URL, KEY)
 
-# Memória de Espera para Parcelamento (DNA) [cite: 2025-12-29]
 memoria_residuo = [] 
 
 def processar_dna_mega(numero):
@@ -24,7 +16,7 @@ def processar_dna_mega(numero):
     terminal = numero % 10
     alvo = 6 
     
-    # Lógica de Pagamento Parcelado (DNA do Código) [cite: 2025-12-29]
+    # Lógica de Pagamento Parcelado [cite: 2025-12-29]
     if numero == alvo:
         res = "Green Direto ✅"
         memoria_residuo = []
@@ -39,23 +31,14 @@ def processar_dna_mega(numero):
         res = "Aguardando Padrão"
         memoria_residuo = []
 
-    payload = {
-        "numero": numero,
-        "terminal": terminal,
-        "resultado": res,
-        "cor": cor,
-        "estrategia": "Mega Roulette - DNA Luxo"
-    }
-    
+    payload = {"numero": numero, "terminal": terminal, "resultado": res, "cor": cor, "estrategia": "Mega Roulette - DNA Luxo"}
     try:
         supabase.table("resultados_nexus").insert(payload).execute()
         print(f"📡 DNA: {numero} | {res}")
-    except Exception as e:
-        print(f"❌ Erro: {e}")
+    except: pass
 
 def on_message(ws, message):
     data = json.loads(message)
-    # Filtro específico para o sinal da Mega Roulette [cite: 2025-12-29]
     if data.get("slug") == "pragmatic-mega-roulette":
         processar_dna_mega(int(data.get("result")))
 
@@ -66,10 +49,8 @@ def iniciar_websocket():
                 on_open=lambda ws: ws.send(json.dumps({"action": "subscribe", "slug": "pragmatic-mega-roulette"})),
                 on_message=on_message)
             ws.run_forever(ping_interval=30)
-        except:
-            time.sleep(5)
+        except: time.sleep(5)
 
-# Keep-Alive para o Render [cite: 2025-12-29]
 class Health(BaseHTTPRequestHandler):
     def do_GET(self):
         self.send_response(200); self.end_headers()
