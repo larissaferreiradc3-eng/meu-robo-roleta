@@ -4,7 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NEXUS IA - Protocolo Multicamadas</title>
+    
     <link rel="stylesheet" href="style.css">
+    
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
@@ -12,7 +14,7 @@
     <div id="container-principal">
         <header>
             <h1>NEXUS <span style="color: #ffd700;">IA</span></h1>
-            <p id="status-bot">SISTEMA ATIVO: ESPELHAMENTO DNA</p>
+            <p id="status-bot">SISTEMA ATIVO: DNA DE LUXO</p>
         </header>
 
         <div id="display-motor">
@@ -20,7 +22,7 @@
         </div>
 
         <div id="container-sinal" onclick="gerarAnaliseIA()" style="cursor: pointer;">
-            <p style="font-size: 0.8rem; color: #888; margin-bottom: 5px;">SINAL DE ENTRADA (CLIQUE AQUI)</p>
+            <p style="font-size: 0.8rem; color: #888; margin-bottom: 5px;">SINAL DE ENTRADA</p>
             <div id="texto-sinal">AGUARDANDO DADOS...</div>
         </div>
 
@@ -45,33 +47,31 @@
                 ultimoId = data[0].id;
                 const reg = data[0];
                 
-                // Atualiza o Motor Numérico com a Cor Centenária [cite: 2025-12-28, 2025-12-29]
                 const motor = document.getElementById('motor-num');
                 motor.innerText = reg.numero;
+                
+                // Aplica as cores do DNA (0 Verde, resto exato) [cite: 2025-12-28, 2025-12-29]
                 motor.style.color = (reg.cor === "Vermelho") ? "#ff4d4d" : (reg.cor === "Verde") ? "#00ff7f" : "#fff";
                 
-                // Atualiza o Texto do Sinal conforme o DNA [cite: 2025-12-29]
                 document.getElementById('texto-sinal').innerText = reg.resultado.toUpperCase();
-                
                 carregarHistoricoDNA();
             }
         }
 
-        // Lógica de Alvos: Substituição por Decomposição [cite: 2025-12-29]
         async function gerarAnaliseIA() {
             const { data } = await supabaseClient.from('resultados_nexus').select('*').order('id', { ascending: false }).limit(1);
             if (data && data[0]) {
                 const reg = data[0];
                 const sinal = document.getElementById('texto-sinal');
                 
+                // Lógica de Alvo/Parcelamento do DNA [cite: 2025-12-29]
                 if (reg.resultado.includes("picado")) {
                     const alvo = 6; 
                     const falta = alvo - reg.numero;
                     sinal.innerText = `ALVO: ${falta} OU ${alvo}`;
-                    sinal.style.color = "#ffd700"; // Amarelo para sinal de entrada
+                    sinal.style.color = "#ffd700";
                 } else {
-                    sinal.innerText = "AGUARDANDO CICLO DNA...";
-                    sinal.style.color = "#fff";
+                    sinal.innerText = "BUSCANDO ENTRADA...";
                 }
             }
         }
@@ -79,9 +79,9 @@
         async function carregarHistoricoDNA() {
             const { data } = await supabaseClient.from('resultados_nexus').select('numero, cor').order('id', { ascending: false }).limit(24);
             const lista = document.getElementById('historico-lista');
-            if (data) {
+            if (lista && data) {
                 lista.innerHTML = data.map(n => `
-                    <div style="background:#1a1a1a; padding:10px; border-radius:8px; border-bottom: 3px solid ${n.cor=='Vermelho'?'#ff4d4d':n.cor=='Verde'?'#00ff7f':'#444'}; font-weight:bold;">
+                    <div style="background:#1a1a1a; padding:10px; border-radius:8px; border-bottom: 3px solid ${n.cor=='Vermelho'?'#ff4d4d':n.cor=='Verde'?'#00ff7f':'#444'}; font-weight:bold; color: white;">
                         ${n.numero}
                     </div>
                 `).join('');
