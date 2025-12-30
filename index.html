@@ -6,80 +6,91 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        body { background: #050505; color: white; font-family: 'Orbitron', sans-serif; }
+        body { background: #050505; color: white; font-family: 'Orbitron', sans-serif; overflow-x: hidden; }
         .neon-border { border: 1px solid #3b82f6; box-shadow: 0 0 15px rgba(59, 130, 246, 0.3); }
         .neon-text-orange { color: #f97316; text-shadow: 0 0 10px rgba(249, 115, 22, 0.8); }
         .glass { background: rgba(20, 20, 25, 0.8); backdrop-filter: blur(10px); }
-        .pulse-blue { animation: pulse 2s infinite; }
-        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+        .grid-numbers { display: grid; grid-template-columns: repeat(10, 1fr); gap: 5px; }
+        .ball { width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: bold; border: 1px solid rgba(255,255,255,0.1); transition: all 0.3s; }
+        .btn-nexus { background: linear-gradient(90deg, #f97316, #ef4444); box-shadow: 0 0 20px rgba(249, 115, 22, 0.5); transition: transform 0.2s, opacity 0.2s; }
+        .btn-nexus:hover { transform: scale(1.02); opacity: 0.9; }
+        .btn-nexus:active { transform: scale(0.98); }
     </style>
 </head>
-<body class="p-4 md:p-10">
-    <div class="max-w-6xl mx-auto">
-        <header class="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-4">
-            <div>
-                <h1 class="text-2xl font-bold tracking-widest neon-text-orange">NEXUS IA <span class="text-white text-xs block">VIP ONLINE</span></h1>
-                <div class="mt-2 flex gap-3 items-center">
-                    <button onclick="testarConexao()" class="px-3 py-1 bg-blue-600/20 border border-blue-500 rounded text-[9px] hover:bg-blue-600/40 transition">
-                        TESTAR CONEXÃO
-                    </button>
-                    <span id="debug-status" class="text-[9px] text-gray-500 font-mono italic">Aguardando comando...</span>
-                </div>
-            </div>
-            <div class="text-right">
-                <span class="text-[10px] text-gray-500 uppercase">Status do Servidor Render:</span>
-                <span class="text-[10px] text-green-500 block">● LIVE / CONECTADO</span>
+<body class="p-4 md:p-8">
+    <div class="max-w-7xl mx-auto">
+        <header class="flex justify-between items-center mb-8">
+            <h1 class="text-2xl font-bold tracking-widest neon-text-orange">NEXUS IA <span class="text-white text-[10px] block">SISTEMA DNA 100+</span></h1>
+            <div class="flex gap-4">
+                <button onclick="testarConexao()" class="px-4 py-2 bg-blue-600/10 border border-blue-500/50 rounded text-[9px] text-blue-400 hover:bg-blue-600/20 transition">VERIFICAR API</button>
             </div>
         </header>
 
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div class="lg:col-span-2 space-y-6">
-                <div class="glass p-8 rounded-2xl neon-border">
-                    <h2 class="text-xs text-gray-400 mb-2 uppercase tracking-tighter">Assertividade Estratégica</h2>
-                    <div id="porcentagem" class="text-6xl font-black neon-text-orange">0.0%</div>
-                    <p id="status-dna" class="mt-4 text-blue-400 text-sm italic">Sincronizando com o motor Nexus...</p>
-                </div>
-
-                <div class="glass p-6 rounded-2xl border border-gray-800">
-                    <h3 class="text-gray-500 text-[10px] uppercase mb-4 tracking-widest">Última Predição (Motor DNA)</h3>
-                    <div class="flex items-center gap-10">
-                        <div id="numero-alvo" class="text-7xl font-bold italic">- -</div>
-                        <div class="space-y-1">
-                            <p class="text-[10px] text-gray-500 uppercase">Análise de Ciclo:</p>
-                            <p id="resultado-texto" class="text-lg font-bold text-white uppercase tracking-tight">Monitorando Roleta...</p>
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            
+            <div class="lg:col-span-4 space-y-6">
+                <div class="glass p-6 rounded-2xl neon-border text-center">
+                    <h3 class="text-[9px] text-gray-400 uppercase mb-4 tracking-widest font-bold">Assertividade em Tempo Real</h3>
+                    <div class="flex justify-around items-center">
+                        <div>
+                            <p class="text-green-500 text-3xl font-black" id="count-green">0</p>
+                            <p class="text-[8px] text-gray-500">GREENS</p>
+                        </div>
+                        <div class="h-8 w-[1px] bg-gray-800"></div>
+                        <div>
+                            <p class="text-red-500 text-3xl font-black" id="count-loss">0</p>
+                            <p class="text-[8px] text-gray-500">LOSSES</p>
+                        </div>
+                        <div class="h-8 w-[1px] bg-gray-800"></div>
+                        <div>
+                            <p class="neon-text-orange text-3xl font-black" id="porcentagem">0%</p>
+                            <p class="text-[8px] text-gray-500">WIN RATE</p>
                         </div>
                     </div>
                 </div>
+
+                <div class="glass p-6 rounded-2xl border border-gray-800">
+                    <p id="status-dna" class="text-blue-400 text-[9px] mb-2 italic">Aguardando novo giro...</p>
+                    <div class="flex items-center gap-6">
+                        <div id="numero-alvo" class="text-6xl font-black italic">--</div>
+                        <div class="space-y-1">
+                            <p class="text-[10px] text-gray-500 uppercase">Resultado do Ciclo:</p>
+                            <p id="resultado-texto" class="text-sm font-bold uppercase text-white">Monitorando...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <button onclick="atualizarInterface()" class="btn-nexus w-full py-5 rounded-xl text-lg font-black tracking-widest flex items-center justify-center gap-3">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>
+                    GERAR ANÁLISE IA
+                </button>
             </div>
 
-            <div class="glass p-6 rounded-2xl border border-gray-800 h-[500px] flex flex-col">
-                <h3 class="text-[10px] font-bold text-gray-500 uppercase mb-4 italic tracking-widest border-b border-gray-800 pb-2">Histórico de Ciclos</h3>
-                <div id="lista-historico" class="space-y-3 overflow-y-auto flex-1 pr-2 scrollbar-hide">
+            <div class="lg:col-span-8">
+                <div class="glass p-6 rounded-2xl border border-gray-800 h-full">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-[10px] font-bold text-gray-400 uppercase italic tracking-widest">Histórico DNA (Últimos 100 Giros)</h3>
+                        <span class="text-[9px] text-gray-600 uppercase font-mono">Terminal Repete 3-6x</span>
                     </div>
+                    <div id="grid-100" class="grid-numbers">
+                        </div>
+                </div>
             </div>
+
         </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
-        // Configurações do Supabase [cite: 2025-12-29]
         const supabaseUrl = 'https://tpotbyekboefgcbgmckp.supabase.co';
-        const supabaseKey = 'SUA_CHAVE_ANON_AQUI'; // <--- COLE SUA CHAVE AQUI LARISSA!
+        const supabaseKey = 'SUA_CHAVE_ANON_AQUI'; // <--- COLOQUE SUA CHAVE AQUI! [cite: 2025-12-29]
         const _supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
         async function testarConexao() {
-            const statusDiv = document.getElementById('debug-status');
-            statusDiv.innerText = "⏳ VERIFICANDO...";
-            try {
-                const { data, error } = await _supabase.from('resultados_nexus').select('id').limit(1);
-                if (error) throw error;
-                statusDiv.innerText = "✅ CONECTADO AO BANCO!";
-                statusDiv.classList.replace('text-gray-500', 'text-green-500');
-                atualizarInterface();
-            } catch (err) {
-                statusDiv.innerText = "❌ ERRO DE CONEXÃO";
-                statusDiv.classList.replace('text-gray-500', 'text-red-500');
-            }
+            alert("Verificando conexão com o motor Render/Supabase...");
+            const { data, error } = await _supabase.from('resultados_nexus').select('id').limit(1);
+            if(error) alert("❌ Erro na API: " + error.message);
+            else alert("✅ Sistema Sincronizado!");
         }
 
         async function atualizarInterface() {
@@ -87,40 +98,47 @@
                 .from('resultados_nexus')
                 .select('*')
                 .order('created_at', { ascending: false })
-                .limit(20);
+                .limit(100);
 
             if (data && data.length > 0) {
+                // Atualiza Placar [cite: 2025-12-29]
+                const greens = data.filter(d => d.resultado && d.resultado.includes('✅')).length;
+                const losses = data.filter(d => d.resultado && d.resultado.includes('❌')).length;
+                const totalValidos = greens + losses;
+                
+                document.getElementById('count-green').innerText = greens;
+                document.getElementById('count-loss').innerText = losses;
+                document.getElementById('porcentagem').innerText = totalValidos > 0 ? ((greens / totalValidos) * 100).toFixed(0) + "%" : "0%";
+
+                // Atualiza Análise Principal [cite: 2025-12-29]
                 const ultimo = data[0];
                 document.getElementById('numero-alvo').innerText = ultimo.numero;
-                document.getElementById('resultado-texto').innerText = ultimo.resultado || "ANALISANDO...";
+                document.getElementById('resultado-texto').innerText = ultimo.resultado || "PROCESSANDO";
                 
-                // Monitor de Pagamento Parcelado (DNA) [cite: 2025-12-29]
+                // Monitor de Pagamento Parcelado [cite: 2025-12-29]
                 const statusDna = document.getElementById('status-dna');
                 if(ultimo.resultado && ultimo.resultado.toLowerCase().includes("picado")) {
-                    statusDna.innerText = "⚠️ ROLETA INICIOU PAGAMENTO PICADO (AGUARDANDO COMPLEMENTO)";
-                    statusDna.classList.add('pulse-blue', 'text-blue-400');
+                    statusDna.innerText = "⚠️ ROLETA INICIOU PAGAMENTO PICADO";
+                    statusDna.classList.add('text-blue-400', 'animate-pulse');
                 } else {
-                    statusDna.innerText = "✅ MOTOR DNA EM SINCRONIA";
-                    statusDna.classList.remove('pulse-blue');
+                    statusDna.innerText = "✅ DNA: MONITORANDO TERMINAIS (3-6x)";
+                    statusDna.classList.remove('animate-pulse');
                 }
 
-                // Cálculo de Assertividade Real [cite: 2025-12-29]
-                const greens = data.filter(d => d.resultado && d.resultado.includes('✅')).length;
-                const perc = ((greens / data.length) * 100).toFixed(1);
-                document.getElementById('porcentagem').innerText = perc + "%";
-
-                // Lista de Histórico Profissional
-                const lista = document.getElementById('lista-historico');
-                lista.innerHTML = data.map(d => `
-                    <div class="flex justify-between items-center p-3 bg-white/5 rounded-lg border-l-2 ${d.resultado && d.resultado.includes('✅') ? 'border-green-500' : 'border-blue-500'}">
-                        <span class="text-xl font-bold">${d.numero}</span>
-                        <span class="text-[8px] uppercase font-mono opacity-60">${d.resultado || 'PROCESSANDO'}</span>
-                    </div>
-                `).join('');
+                // Renderiza as 100 bolinhas [cite: 2025-12-29]
+                const grid = document.getElementById('grid-100');
+                grid.innerHTML = data.map(d => {
+                    const isGreen = d.resultado && d.resultado.includes('✅');
+                    const isLoss = d.resultado && d.resultado.includes('❌');
+                    let cor = 'bg-white/5 text-gray-500 border-gray-800';
+                    if (isGreen) cor = 'bg-green-500/20 border-green-500/50 text-green-500';
+                    if (isLoss) cor = 'bg-red-500/20 border-red-500/50 text-red-500';
+                    return `<div class="ball ${cor}">${d.numero}</div>`;
+                }).join('');
             }
         }
 
-        setInterval(atualizarInterface, 5000); // Atualiza a cada 5 segundos [cite: 2025-12-29]
+        setInterval(atualizarInterface, 5000); // Auto-update a cada 5s [cite: 2025-12-29]
         window.onload = atualizarInterface;
     </script>
 </body>
