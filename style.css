@@ -1,19 +1,92 @@
 :root {
-    --bg: #05070a;
-    --card: #11141b;
-    --green: #00ff95;
-    --red: #ff3e5e;
-    --neon-shadow: 0 0 15px rgba(0, 255, 149, 0.2);
+    --bg-dark: #050505;
+    --card-bg: rgba(20, 20, 20, 0.8);
+    --nexus-blue: #00d4ff;
+    --nexus-orange: #ff4e00;
+    --nexus-green: #00ff41;
+    --text-main: #e0e0e0;
 }
 
-body { background: var(--bg); color: #fff; font-family: 'Inter', sans-serif; margin: 0; }
-.card { background: var(--card); border-radius: 15px; border: 1px solid #1f2530; padding: 20px; box-shadow: var(--neon-shadow); }
+body {
+    background-color: var(--bg-dark);
+    color: var(--text-main);
+    font-family: 'Inter', 'Roboto Mono', monospace;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    padding: 20px;
+}
 
-.ball-grid { display: grid; grid-template-columns: repeat(10, 1fr); gap: 8px; margin-top: 15px; }
-.ball { width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-family: 'Orbitron'; }
+.dashboard-container {
+    width: 100%;
+    max-width: 1200px;
+    background: var(--card-bg);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 15px;
+    padding: 25px;
+    box-shadow: 0 0 50px rgba(0, 0, 0, 1);
+}
 
-.Verde { background: var(--green); color: #000; box-shadow: 0 0 10px var(--green); }
-.Vermelho { background: var(--red); box-shadow: 0 0 10px var(--red); }
-.Preto { background: #1a1a1a; border: 1px solid #333; }
+/* Título e Logo */
+.header {
+    text-align: center;
+    margin-bottom: 30px;
+}
 
-.percent { font-size: 3rem; font-family: 'Orbitron'; color: var(--green); text-shadow: 0 0 20px var(--green); }
+.header h1 {
+    font-size: 3rem;
+    letter-spacing: 5px;
+    background: linear-gradient(to right, var(--nexus-blue), var(--nexus-orange));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 5px;
+}
+
+/* Botão Central Estilo Eclipse */
+.scan-btn {
+    width: 280px;
+    height: 80px;
+    background: transparent;
+    border: 2px solid var(--nexus-blue);
+    border-radius: 50px;
+    color: white;
+    font-weight: bold;
+    font-size: 1.1rem;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    transition: 0.3s;
+    box-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
+}
+
+.scan-btn:hover {
+    box-shadow: 0 0 40px var(--nexus-orange);
+    border-color: var(--nexus-orange);
+}
+
+/* Grid de Histórico (100 números) */
+.history-grid {
+    display: grid;
+    grid-template-columns: repeat(10, 1fr);
+    gap: 8px;
+    margin-top: 30px;
+    padding: 15px;
+    background: rgba(0, 0, 0, 0.5);
+    border-radius: 10px;
+}
+
+.number-cell {
+    aspect-ratio: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    border-radius: 5px;
+    font-size: 0.9rem;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.red { background: #ff2a2a; color: white; }
+.black { background: #1a1a1a; color: white; }
+.green { background: #00ff41; color: black; }
+.highlight { border: 2px solid #ffd700; box-shadow: 0 0 10px #ffd700; }
