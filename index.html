@@ -2,84 +2,94 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>NEXUS IA</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEXUS IA - Protocolo Multicamadas</title>
+    <link rel="stylesheet" href="style.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <style>
-        /* O estilo exato que você já tinha */
-        body { background-color: #000; color: white; font-family: sans-serif; }
-        .painel { background-color: #111; border: 1px solid #222; border-radius: 20px; padding: 40px; text-align: center; }
-        #numero-atual { font-size: 100px; font-weight: bold; }
-        .botao-analise { background-color: #ff4500; color: white; padding: 15px; border-radius: 10px; font-weight: bold; width: 100%; margin-top: 20px; cursor: pointer; }
-    </style>
 </head>
-<body class="flex flex-col items-center p-10">
+<body>
 
-    <h1 class="text-orange-600 font-bold mb-6">SISTEMA NEXUS IA</h1>
+    <div id="container-principal">
+        <header>
+            <h1>NEXUS <span style="color: #ffd700;">IA</span></h1>
+            <p id="status-bot">SISTEMA ATIVO: ESPELHAMENTO DNA</p>
+        </header>
 
-    <div class="painel w-80">
-        <p class="text-gray-500 text-xs uppercase">Último Resultado</p>
-        <div id="numero-atual">--</div>
-        <p id="status-ciclo" class="text-gray-400 text-sm">Aguardando sinal...</p>
-        
-        <button class="botao-analise" onclick="gerarAnaliseIA()">GERAR ANÁLISE</button>
-    </div>
-
-    <div id="lista-historico" class="flex gap-2 mt-10">
+        <div id="display-motor">
+            <div id="motor-num">--</div>
         </div>
 
+        <div id="container-sinal" onclick="gerarAnaliseIA()" style="cursor: pointer;">
+            <p style="font-size: 0.8rem; color: #888; margin-bottom: 5px;">SINAL DE ENTRADA (CLIQUE AQUI)</p>
+            <div id="texto-sinal">AGUARDANDO DADOS...</div>
+        </div>
+
+        <div id="container-historico">
+            <p style="text-align: center; margin-bottom: 15px; color: #aaa;">ÚLTIMOS 24 RESULTADOS</p>
+            <div id="historico-lista">
+                </div>
+        </div>
+    </div>
+
     <script>
-        // Suas chaves que já estão configuradas
         const SB_URL = "https://tpotbyekboefgbgmckp.supabase.co";
         const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRwb3RieWVrYm9lZmdjYmdtY2twIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjY4MDc1NjgsImV4cCI6MjA4MjM4MzU2OH0.rlZzMH0EWY54gk9MNolp_KTC2DYFxkb3P7KtPw_aYWw";
         const supabaseClient = supabase.createClient(SB_URL, SB_KEY);
 
         let ultimoId = null;
 
-        // 1. Função de busca automática (Sincronização) [cite: 2025-12-29]
-        async function sincronizar() {
+        async function sincronizarNexus() {
             const { data } = await supabaseClient.from('resultados_nexus').select('*').order('id', { ascending: false }).limit(1);
+            
             if (data && data[0] && data[0].id !== ultimoId) {
                 ultimoId = data[0].id;
                 const reg = data[0];
-                const el = document.getElementById('numero-atual');
-                el.innerText = reg.numero;
-                // Cores do DNA (0 Verde) [cite: 2025-12-28, 2025-12-29]
-                el.style.color = (reg.cor === "Vermelho") ? "#ff0000" : (reg.cor === "Verde") ? "#00ff00" : "#fff";
-                document.getElementById('status-ciclo').innerText = reg.resultado;
-                atualizarHistorico();
+                
+                // Atualiza o Motor Numérico com a Cor Centenária [cite: 2025-12-28, 2025-12-29]
+                const motor = document.getElementById('motor-num');
+                motor.innerText = reg.numero;
+                motor.style.color = (reg.cor === "Vermelho") ? "#ff4d4d" : (reg.cor === "Verde") ? "#00ff7f" : "#fff";
+                
+                // Atualiza o Texto do Sinal conforme o DNA [cite: 2025-12-29]
+                document.getElementById('texto-sinal').innerText = reg.resultado.toUpperCase();
+                
+                carregarHistoricoDNA();
             }
         }
 
-        // 2. FUNÇÃO DO BOTÃO: A lógica que faltava [cite: 2025-12-29]
+        // Lógica de Alvos: Substituição por Decomposição [cite: 2025-12-29]
         async function gerarAnaliseIA() {
             const { data } = await supabaseClient.from('resultados_nexus').select('*').order('id', { ascending: false }).limit(1);
             if (data && data[0]) {
                 const reg = data[0];
-                // Verifica se a roleta iniciou pagamento picado (DNA) [cite: 2025-12-29]
+                const sinal = document.getElementById('texto-sinal');
+                
                 if (reg.resultado.includes("picado")) {
                     const alvo = 6; 
                     const falta = alvo - reg.numero;
-                    alert(`🎯 ANALISE NEXUS:\nEntrada sugerida: ${falta} ou ${alvo}\nJustificativa: Roleta iniciou pagamento picado.`);
+                    sinal.innerText = `ALVO: ${falta} OU ${alvo}`;
+                    sinal.style.color = "#ffd700"; // Amarelo para sinal de entrada
                 } else {
-                    alert("Aguardando padrão de decomposição de ciclo...");
+                    sinal.innerText = "AGUARDANDO CICLO DNA...";
+                    sinal.style.color = "#fff";
                 }
             }
         }
 
-        async function atualizarHistorico() {
-            const { data } = await supabaseClient.from('resultados_nexus').select('numero, cor').order('id', { ascending: false }).limit(10);
+        async function carregarHistoricoDNA() {
+            const { data } = await supabaseClient.from('resultados_nexus').select('numero, cor').order('id', { ascending: false }).limit(24);
+            const lista = document.getElementById('historico-lista');
             if (data) {
-                document.getElementById('lista-historico').innerHTML = data.map(n => `
-                    <div style="background:#222; padding:10px; border-radius:5px; border-bottom: 2px solid ${n.cor=='Vermelho'?'red':n.cor=='Verde'?'green':'#555'}">
+                lista.innerHTML = data.map(n => `
+                    <div style="background:#1a1a1a; padding:10px; border-radius:8px; border-bottom: 3px solid ${n.cor=='Vermelho'?'#ff4d4d':n.cor=='Verde'?'#00ff7f':'#444'}; font-weight:bold;">
                         ${n.numero}
                     </div>
                 `).join('');
             }
         }
 
-        setInterval(sincronizar, 5000);
-        sincronizar();
+        setInterval(sincronizarNexus, 5000);
+        sincronizarNexus();
     </script>
 </body>
 </html>
