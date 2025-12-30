@@ -1,70 +1,96 @@
-// 1. CONFIGURAÇÕES DE CONEXÃO (CHAVES JWT ENVIADAS) [cite: 2025-12-29]
-const SUPABASE_URL = 'https://tpotbyekboefgbgmckp.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRwb3RieWVrYm9lZmdjYmdtY2twIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjY4MDc1NjgsImV4cCI6MjA4MjM4MzU2OH0.rlZzMH0EWY54gk9MNolp_KTC2DYFxkb3P7KtPw_aYWw';
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEXUS IA — DNA PROFISSIONAL</title>
+    <style>
+        body { background: #000; color: #fff; font-family: sans-serif; }
+        #monitor-status { font-size: 24px; font-weight: bold; margin: 20px; }
+        .historico-lateral { border-left: 2px solid #00f2ff; padding: 10px; min-height: 400px; }
+        .bola { width: 40px; height: 40px; border-radius: 50%; display: inline-block; margin: 5px; text-align: center; line-height: 40px; font-weight: bold; }
+        .verde { background: #008000; }
+        .vermelho { background: #ff0000; }
+        .preto { background: #222; border: 1px solid #fff; }
+    </style>
+</head>
+<body>
 
-// Inicialização Blindada contra net::ERR_NAME_NOT_RESOLVED
-const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
-  realtime: { params: { eventsPerSecond: 15 } }
-});
-
-// 2. MONITOR DE ACÚMULO DE RESÍDUO (DNA DO CÓDIGO) [cite: 2025-12-29]
-let memoriaEspera = 0;
-let historicoLocal = [];
-
-function analisarCicloDNA(ultimoNumero) {
-    const alvo = 6; // Alvo dinâmico do sistema [cite: 2025-12-29]
-    
-    // Filtro de Pagamento Parcelado (Soma Sucessiva) [cite: 2025-12-29]
-    if (ultimoNumero < alvo && ultimoNumero > 0) {
-        memoriaEspera += ultimoNumero;
+    <div id="app">
+        <h1>NEXUS IA</h1>
         
-        if (memoriaEspera === alvo) {
-            memoriaEspera = 0;
-            return { status: "GREEN POR SOMA PARCELADA", cor: "#00FF00", msg: "Ciclo fechado por decomposição" };
+        <div id="painel-dna">
+            <p>MONITOR DE CICLOS DNA</p>
+            <div id="monitor-status">CONECTANDO SINAL...</div>
+        </div>
+
+        <div class="historico-lateral" id="historico">
+            <p>HISTÓRICO REAL (ÚLTIMOS 100 GIROS)</p>
+            <div id="lista-bolinhas"></div>
+        </div>
+    </div>
+
+    <script>
+        // 1. NOVAS FONTES DE DADOS (PRAGMATIC)
+        const API_WS = 'wss://api.revesbot.com.br/ws';
+        let memoriaParcelada = 0;
+
+        // 2. FUNÇÃO CORE: DNA DE PARCELAMENTO [cite: 2025-12-29]
+        function processarDNA(numero) {
+            const alvo = 6;
+            const monitor = document.getElementById('monitor-status');
+
+            // Lógica de Pagamento Parcelado (Substituição por Decomposição) [cite: 2025-12-29]
+            if (numero < alvo && numero > 0) {
+                memoriaParcelada += numero;
+                if (memoriaParcelada === alvo) {
+                    memoriaParcelada = 0;
+                    monitor.innerText = "GREEN POR SOMA PARCELADA"; [cite: 2025-12-29]
+                    monitor.style.color = "#00FF00";
+                } else {
+                    monitor.innerText = "AGUARDAR COMPLEMENTO"; [cite: 2025-12-29]
+                    monitor.style.color = "#FF8C00"; // Laranja Neon
+                }
+            } else if (numero === alvo) {
+                memoriaParcelada = 0;
+                monitor.innerText = "GREEN DIRETO";
+                monitor.style.color = "#00FF00";
+            } else {
+                memoriaParcelada = 0;
+                monitor.innerText = "ANALISANDO PADRÕES...";
+                monitor.style.color = "#FFFFFF";
+            }
         }
-        return { status: "AGUARDAR COMPLEMENTO", cor: "#FF8C00", msg: "Roleta iniciou pagamento picado" };
-    }
 
-    // Lógica de Repetição (Terminal 3 a 6 vezes / Número exato 3 a 4 vezes) [cite: 2025-12-29]
-    historicoLocal.unshift(ultimoNumero);
-    if (historicoLocal.length > 10) historicoLocal.pop();
+        // 3. CONEXÃO WEBSOCKET PARA EVITAR ERRO DE SINAL
+        function iniciarConexao() {
+            const socket = new WebSocket(API_WS);
 
-    const repeticoesTerminal = historicoLocal.filter(n => n % 10 === ultimoNumero % 10).length;
-    if (repeticoesTerminal >= 3 && repeticoesTerminal <= 6) {
-        return { status: "REPETIÇÃO DE TERMINAL", cor: "#00BFFF", msg: `Terminal ${ultimoNumero % 10} em ciclo` };
-    }
+            socket.onmessage = (event) => {
+                const data = JSON.parse(event.data);
+                // No DNA, o 0 é sempre Verde [cite: 2025-12-29]
+                const cor = (data.numero === 0) ? 'verde' : (data.cor === 'red' ? 'vermelho' : 'preto');
+                
+                processarDNA(data.numero);
+                adicionarBolinha(data.numero, cor);
+            };
 
-    memoriaEspera = 0;
-    return { status: "ANALISANDO PADRÕES", cor: "#FFFFFF", msg: "Aguardando gatilho de entrada" };
-}
+            socket.onclose = () => setTimeout(iniciarConexao, 3000);
+            socket.onerror = () => console.log("Erro de rede. Reconectando...");
+        }
 
-// 3. SINCRONIZAÇÃO EM TEMPO REAL [cite: 2025-12-29]
-const canal = supabaseClient
-  .channel('public:resultados_nexus')
-  .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'resultados_nexus' }, (payload) => {
-    const num = payload.new.numero;
-    const corDB = payload.new.cor;
-    
-    // Regra do Zero Verde (DNA Inalterável) [cite: 2025-12-28, 2025-12-29]
-    const corFinal = (num === 0) ? 'Verde' : corDB;
-    
-    exibirNoPainel(num, corFinal);
-  })
-  .subscribe();
+        // 4. HISTÓRICO VISUAL (BOLINHAS 3D)
+        function adicionarBolinha(num, cor) {
+            const lista = document.getElementById('lista-bolinhas');
+            const novaBola = document.createElement('div');
+            novaBola.className = `bola ${cor}`;
+            novaBola.innerText = num;
+            lista.prepend(novaBola); // Adiciona no topo
+            
+            if (lista.children.length > 100) lista.lastChild.remove();
+        }
 
-// 4. ATUALIZAÇÃO DA INTERFACE (BOLINHAS 3D E MONITOR)
-function exibirNoPainel(num, cor) {
-    const monitorTexto = document.getElementById('monitor-status'); // Elemento do "ERRO DE SINAL"
-    const analise = analisarCicloDNA(num);
-    
-    // Atualiza o texto do monitor com a cor exata do DNA [cite: 2025-12-29]
-    if (monitorTexto) {
-        monitorTexto.innerText = analise.status;
-        monitorTexto.style.color = analise.cor;
-    }
-    
-    console.log(`[DNA LOG]: ${analise.msg} | Número: ${num} (${cor})`);
-    
-    // Aqui você chama sua função de criar as bolinhas 3D no histórico lateral
-    adicionarAoHistoricoVisual(num, cor);
-}
+        iniciarConexao();
+    </script>
+</body>
+</html>
